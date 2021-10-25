@@ -2,7 +2,7 @@
 BungeeCord 上でプレイヤーの IP、プレイヤー名を記録するプラグイン
 
 # Open Source License
-**・[natyu192 / KokuminServer | Apache License 2.0]**
+**・[natyu192 / KokuminServer | Apache License 2.0](https://github.com/natyu192/)**
 ```
                                  Apache License
                            Version 2.0, January 2004
