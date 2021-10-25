@@ -42,13 +42,13 @@ public class OfflinePlayer implements Listener {
 	public void onLogin(PostLoginEvent event) {
 		ProxiedPlayer player = event.getPlayer();
 
-		this.instance.getPlayerConfig().set("player." + player.getName(), player.getUniqueId().toString());
+		this.instance.getPlayerConfig().set("player." + player.getName().toLowerCase(), player.getUniqueId().toString());
 		this.instance.getPlayerConfig().set("uuid." + player.getUniqueId(), player.getName());
 	}
 
 	public CachedPlayer getOfflinePlayer(String name) {
 		try {
-			UUID uniqueId = UUID.fromString(this.instance.getPlayerConfig().getString("player." + name, null));
+			UUID uniqueId = UUID.fromString(this.instance.getPlayerConfig().getString("player." + name.toLowerCase(), null));
 			String pn = this.instance.getPlayerConfig().getString("uuid." + uniqueId.toString());
 
 			return new CachedPlayer(uniqueId, pn);

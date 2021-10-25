@@ -77,7 +77,7 @@ public class AltCheckTest {
 			connection.connect();
 
 			String value = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-			JsonArray jsonArray = JsonParser.parseString(value).getAsJsonArray();
+			JsonArray jsonArray = new JsonParser().parseString(value).getAsJsonArray();
 
 			List<Names> names = new ArrayList<>();
 
