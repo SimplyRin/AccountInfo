@@ -46,9 +46,9 @@ public class CommandAccountInfo extends Command {
 
 		if (args.length > 0) {
 			if (args[0].equalsIgnoreCase("license")) {
-				
+
 			}
-			
+
 			this.instance.getProxy().getScheduler().runAsync(this.instance, () -> {
 				CachedPlayer op = null;
 				if (args[0].contains(".")) {
@@ -70,7 +70,10 @@ public class CommandAccountInfo extends Command {
 				if (this.instance.getAltChecker().hasPut(op.getUniqueId().toString())) {
 					Set<String> alts_ = new HashSet<>();
 
-					this.instance.getAltChecketTest().getAltsByUUID(op.getUniqueId()).forEach(uuid -> alts_.add(this.instance.getAltChecker().getMCIDbyUUID(uuid)));
+					Set<UUID> uuids = this.instance.getAltChecketTest().getAltsByUUID(op.getUniqueId());
+					for (UUID uuid : uuids) {
+						alts_.add(this.instance.getAltChecker().getMCIDbyUUID(uuid));
+					}
 
 					Set<String> addresses_ = this.instance.getAltChecketTest().getIPs(op.getUniqueId());
 

@@ -41,10 +41,10 @@ public class AltCheckTest {
 
 	public Set<UUID> getAltsByUUID(UUID uuid) {
 		Set<UUID> alts = new HashSet<>();
-		Set<String> ips = getIPs(uuid);
+		Set<String> ips = this.getIPs(uuid);
 		alts.add(uuid);
 		for (String ip : ips) {
-			alts.addAll(getAltsByIP(ip));
+			alts.addAll(this.getAltsByIP(ip));
 		}
 		return alts;
 	}

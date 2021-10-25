@@ -80,6 +80,7 @@ public class Main extends Plugin {
 		this.playerConfig = Config.getConfig(this.playerYmlFile);
 
 		this.altChecker = new AltChecker(this);
+		this.altChecketTest = new AltCheckTest(this);
 
 		this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this));
 
