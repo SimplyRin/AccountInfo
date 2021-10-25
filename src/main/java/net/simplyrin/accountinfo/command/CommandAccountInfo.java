@@ -60,7 +60,7 @@ public class CommandAccountInfo extends Command {
 					}
 
 					Set<String> altsNames = new HashSet<>();
-					alts.forEach(uuid -> altsNames.add(this.instance.getAltChecketTest().getMCIDbyUUID(uuid)));
+					alts.forEach(uuid -> altsNames.add(this.instance.getAltChecketTest().getMCIDbyUUID(uuid).get(0).getName()));
 					this.instance.info(sender, "§b----------" + args[0] + "からログインしたことのあるアカウント一覧 ----------");
 					altsNames.forEach(name -> this.instance.info(sender, "§8- §a" + name));
 				} else {

@@ -2,7 +2,9 @@ package net.simplyrin.accountinfo.utils;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,6 +13,7 @@ import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import lombok.RequiredArgsConstructor;
@@ -67,7 +70,7 @@ public class AltCheckTest {
 		return alts;
 	}
 
-	public String getMCIDbyUUID(UUID uuid) {
+	public List<Names> getMCIDbyUUID(UUID uuid) {
 		try {
 			HttpsURLConnection connection = (HttpsURLConnection) new URL("https://api.mojang.com/user/profiles/" + uuid.toString() + "/names").openConnection();
 			connection.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36");
@@ -75,7 +78,18 @@ public class AltCheckTest {
 
 			String value = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
 			JsonArray jsonArray = JsonParser.parseString(value).getAsJsonArray();
-			return jsonArray.get(0).getAsJsonObject().toString();
+
+			List<Names> names = new ArrayList<>();
+
+			for (int i = 0; i < jsonArray.size(); i++) {
+				JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+
+				long changedToAt = jsonObject.has("changedToAt") ? jsonObject.get("changedToAt").getAsLong() : 0L;
+
+				names.add(new Names(jsonObject.get("name").getAsString(), changedToAt));
+			}
+
+			return names;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
