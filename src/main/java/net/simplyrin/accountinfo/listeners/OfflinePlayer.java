@@ -8,7 +8,7 @@ import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.simplyrin.accountinfo.Main;
-import net.simplyrin.accountinfo.util.CachedPlayer;
+import net.simplyrin.accountinfo.utils.CachedPlayer;
 
 /**
  * Created by SimplyRin on 2021/10/26.

@@ -1,4 +1,4 @@
-package net.simplyrin.accountinfo.util;
+package net.simplyrin.accountinfo.utils;
 
 import java.util.ArrayList;
 import java.util.List;

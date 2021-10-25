@@ -11,8 +11,8 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.simplyrin.accountinfo.command.CommandAccountInfo;
 import net.simplyrin.accountinfo.listeners.EventListener;
 import net.simplyrin.accountinfo.listeners.OfflinePlayer;
-import net.simplyrin.accountinfo.util.AltCheckTest;
-import net.simplyrin.accountinfo.util.AltChecker;
+import net.simplyrin.accountinfo.utils.AltCheckTest;
+import net.simplyrin.accountinfo.utils.AltChecker;
 import net.simplyrin.config.Config;
 import net.simplyrin.config.Configuration;
 

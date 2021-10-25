@@ -1,4 +1,4 @@
-package net.simplyrin.accountinfo.util;
+package net.simplyrin.accountinfo.utils;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;

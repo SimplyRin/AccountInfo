@@ -7,7 +7,7 @@ import java.util.UUID;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.simplyrin.accountinfo.Main;
-import net.simplyrin.accountinfo.util.CachedPlayer;
+import net.simplyrin.accountinfo.utils.CachedPlayer;
 
 /**
  * Created by natyu192.
@@ -45,6 +45,10 @@ public class CommandAccountInfo extends Command {
 		}
 
 		if (args.length > 0) {
+			if (args[0].equalsIgnoreCase("license")) {
+				
+			}
+			
 			this.instance.getProxy().getScheduler().runAsync(this.instance, () -> {
 				CachedPlayer op = null;
 				if (args[0].contains(".")) {
