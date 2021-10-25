@@ -45,7 +45,7 @@ public class Main extends Plugin {
 	private String prefix = "&7[&cAccountInfo&7] &r";
 
 	private AltChecker altChecker;
-	private AltCheckTest altChecketTest;
+	private AltCheckTest altCheckTest;
 
 	private OfflinePlayer offlinePlayer;
 
@@ -54,6 +54,8 @@ public class Main extends Plugin {
 
 	private File playerYmlFile;
 	private Configuration playerConfig;
+
+	private boolean liteBansBridge;
 
 	@Override
 	public void onEnable() {
@@ -80,7 +82,9 @@ public class Main extends Plugin {
 		this.playerConfig = Config.getConfig(this.playerYmlFile);
 
 		this.altChecker = new AltChecker(this);
-		this.altChecketTest = new AltCheckTest(this);
+		this.altCheckTest = new AltCheckTest(this);
+
+		this.liteBansBridge = this.getProxy().getPluginManager().getPlugin("LiteBans") != null;
 
 		this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this));
 

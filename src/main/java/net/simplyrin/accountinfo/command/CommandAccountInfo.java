@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import litebans.api.Database;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.simplyrin.accountinfo.Main;
@@ -52,7 +53,7 @@ public class CommandAccountInfo extends Command {
 			this.instance.getProxy().getScheduler().runAsync(this.instance, () -> {
 				CachedPlayer op = null;
 				if (args[0].contains(".")) {
-					Set<UUID> alts = this.instance.getAltChecketTest().getAltsByIP(args[0]);
+					Set<UUID> alts = this.instance.getAltCheckTest().getAltsByIP(args[0]);
 
 					if (alts.size() == 0) {
 						this.instance.info(sender, "§e" + args[0] + " §cに該当するプレイヤーが見つかりませんでした");
@@ -60,7 +61,7 @@ public class CommandAccountInfo extends Command {
 					}
 
 					Set<String> altsNames = new HashSet<>();
-					alts.forEach(uuid -> altsNames.add(this.instance.getAltChecketTest().getMCIDbyUUID(uuid).get(0).getName()));
+					alts.forEach(uuid -> altsNames.add(this.instance.getAltCheckTest().getMCIDbyUUID(uuid).get(0).getName()));
 					this.instance.info(sender, "§b----------" + args[0] + "からログインしたことのあるアカウント一覧 ----------");
 					altsNames.forEach(name -> this.instance.info(sender, "§8- §a" + name));
 				} else {
@@ -70,20 +71,29 @@ public class CommandAccountInfo extends Command {
 				if (this.instance.getAltChecker().hasPut(op.getUniqueId().toString())) {
 					Set<String> alts_ = new HashSet<>();
 
-					Set<UUID> uuids = this.instance.getAltChecketTest().getAltsByUUID(op.getUniqueId());
+					Set<UUID> uuids = this.instance.getAltCheckTest().getAltsByUUID(op.getUniqueId());
 					for (UUID uuid : uuids) {
 						alts_.add(this.instance.getAltChecker().getMCIDbyUUID(uuid));
 					}
 
-					Set<String> addresses_ = this.instance.getAltChecketTest().getIPs(op.getUniqueId());
+					Set<String> addresses_ = this.instance.getAltCheckTest().getIPs(op.getUniqueId());
 
 					Set<String> alts = new HashSet<String>();
 					Set<String> addresses = new HashSet<String>();
 					for (String alt : alts_) {
-						alts.add("§8- §a" + alt);
+						CachedPlayer cachedPlayer = this.instance.getOfflinePlayer().getOfflinePlayer(alt);
+						if (this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(cachedPlayer.getUniqueId(), null)) {
+							alts.add("§8- §c" + alt /* + " §8- §e" + be.getReason() */);
+						} else {
+							alts.add("§8- §a" + alt);
+						}
 					}
 					for (String address : addresses_) {
-						addresses.add("§8- §a" + address);
+						if (this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(null, address)) {
+							addresses.add("§8- §c" + address /* + " §8- §e" + be.getReason() */);
+						} else {
+							addresses.add("§8- §a" + address);
+						}
 					}
 					this.instance.info(sender, "§b----------" + op.getName() + "の情報 ----------");
 					this.instance.info(sender, "§e§lサブアカウント一覧");

@@ -4,7 +4,7 @@
 
   <groupId>net.simplyrin.accountinfo</groupId>
   <artifactId>AccountInfo</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <packaging>jar</packaging>
 
   <name>AccountInfo</name>
@@ -48,6 +48,11 @@
       <id>net.simplyrin</id>
       <url>https://api.simplyrin.net/maven/</url>
     </repository>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+
   </repositories>
 
   <dependencies>
@@ -68,6 +73,12 @@
       <groupId>osaka.minecraft.commanddispatcher</groupId>
       <artifactId>CommandDispatcher</artifactId>
       <version>1.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.gitlab.ruany</groupId>
+      <artifactId>LiteBansAPI</artifactId>
+      <version>0.3.4</version>
       <scope>provided</scope>
     </dependency>
 
