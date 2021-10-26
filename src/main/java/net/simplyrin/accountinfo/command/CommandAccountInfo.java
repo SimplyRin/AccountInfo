@@ -14,7 +14,7 @@ import net.simplyrin.accountinfo.utils.CachedPlayer;
  * Created by natyu192.
  *
  *  Copyright 2021 natyu192 (https://twitter.com/yaahhhooo)
- *  Copyright 2021 minecraft.osaka
+ *  Copyright 2021 SimplyRin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

@@ -23,7 +23,7 @@ import net.simplyrin.accountinfo.Main;
  * Created by natyu192.
  *
  *  Copyright 2021 natyu192 (https://twitter.com/yaahhhooo)
- *  Copyright 2021 minecraft.osaka
+ *  Copyright 2021 SimplyRin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ public class AltCheckTest {
 			connection.connect();
 
 			String value = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-			JsonArray jsonArray = new JsonParser().parseString(value).getAsJsonArray();
+			JsonArray jsonArray = new JsonParser().parse(value).getAsJsonArray();
 
 			List<Names> names = new ArrayList<>();
 
