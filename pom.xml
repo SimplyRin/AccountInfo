@@ -70,12 +70,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>osaka.minecraft.commanddispatcher</groupId>
-      <artifactId>CommandDispatcher</artifactId>
-      <version>1.2</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>com.gitlab.ruany</groupId>
       <artifactId>LiteBansAPI</artifactId>
       <version>0.3.4</version>
