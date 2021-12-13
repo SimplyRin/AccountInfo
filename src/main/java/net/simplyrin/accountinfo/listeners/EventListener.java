@@ -36,7 +36,9 @@ public class EventListener implements Listener {
 
 	@EventHandler
 	public void onJoin(PostLoginEvent event) {
-		this.instance.getAltChecker().put(event.getPlayer());
+		this.instance.getProxy().getScheduler().runAsync(this.instance, () -> {
+			this.instance.getAltChecker().put(event.getPlayer());
+		});
 	}
 
 }

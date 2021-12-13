@@ -1,6 +1,7 @@
 package net.simplyrin.accountinfo.command;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.simplyrin.accountinfo.Main;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
+import net.simplyrin.accountinfo.utils.Names;
 
 /**
  * Created by natyu192.
@@ -61,8 +63,11 @@ public class CommandAccountInfo extends Command {
 					}
 
 					Set<String> altsNames = new HashSet<>();
-					alts.forEach(uuid -> altsNames.add(this.instance.getAltCheckTest().getMCIDbyUUID(uuid).get(0).getName()));
-					this.instance.info(sender, "§b----------" + args[0] + "からログインしたことのあるアカウント一覧 ----------");
+					alts.forEach(uuid -> {
+						List<Names> names = this.instance.getAltCheckTest().getMCIDbyUUID(uuid);
+						altsNames.add(names.get(names.size() - 1).getName());
+					});
+					this.instance.info(sender, "§b----- " + args[0] + " からログインしたことのあるアカウント一覧 -----");
 					altsNames.forEach(name -> this.instance.info(sender, "§8- §a" + name));
 				} else {
 					op = this.instance.getOfflinePlayer().getOfflinePlayer(args[0]);
