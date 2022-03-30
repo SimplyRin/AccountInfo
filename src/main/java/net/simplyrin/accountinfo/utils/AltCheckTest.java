@@ -10,14 +10,13 @@ import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import org.apache.commons.io.IOUtils;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import lombok.RequiredArgsConstructor;
 import net.simplyrin.accountinfo.Main;
+import net.simplyrin.accountinfo.commonsio.IOUtils;
 
 /**
  * Created by natyu192.

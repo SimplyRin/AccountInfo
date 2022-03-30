@@ -8,13 +8,13 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.config.Configuration;
 import net.simplyrin.accountinfo.command.CommandAccountInfo;
+import net.simplyrin.accountinfo.config.Config;
 import net.simplyrin.accountinfo.listeners.EventListener;
 import net.simplyrin.accountinfo.listeners.OfflinePlayer;
 import net.simplyrin.accountinfo.utils.AltCheckTest;
 import net.simplyrin.accountinfo.utils.AltChecker;
-import net.simplyrin.config.Config;
-import net.simplyrin.config.Configuration;
 
 /**
  * Created by SimplyRin on 2021/10/25.
