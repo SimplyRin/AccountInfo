@@ -3,7 +3,7 @@ BungeeCord 上でプレイヤーの IP、プレイヤー名を記録するプラ
 
 [LiteBans](https://www.spigotmc.org/resources/3715/) で Ban されているプレイヤーは名前が赤色で表示されます。
 
-[![Image from Gyazo](https://i.gyazo.com/de639edab60cad662598121326882d99.png)](https://gyazo.com/de639edab60cad662598121326882d99)
+[![Image from Gyazo](https://i.gyazo.com/80570e982f03e9a57f05aefa9f21635f.png)](https://gyazo.com/80570e982f03e9a57f05aefa9f21635f)
 
 # Open Source License
 **・[natyu192 / KokuminServer | Apache License 2.0](https://github.com/natyu192/)**
