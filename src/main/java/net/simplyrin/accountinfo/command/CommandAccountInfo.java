@@ -112,6 +112,8 @@ public class CommandAccountInfo extends Command {
 								} else {
 									tag = "§a[N] ";
 								}
+								
+								tag += "[" + ipData.getCountryCode() + "] ";
 							}
 						}
 						
