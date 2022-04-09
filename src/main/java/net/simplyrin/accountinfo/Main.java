@@ -11,6 +11,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.simplyrin.accountinfo.command.CommandAccountInfo;
 import net.simplyrin.accountinfo.config.Config;
+import net.simplyrin.accountinfo.kokuminipchecker.KokuminIPChecker;
 import net.simplyrin.accountinfo.listeners.EventListener;
 import net.simplyrin.accountinfo.listeners.OfflinePlayer;
 import net.simplyrin.accountinfo.utils.AltCheckTest;
@@ -43,23 +44,47 @@ import net.simplyrin.accountinfo.utils.AltChecker;
 public class Main extends Plugin {
 
 	private String prefix = "&7[&cAccountInfo&7] &r";
+	
+	private KokuminIPChecker kokuminIPChecker;
 
 	private AltChecker altChecker;
 	private AltCheckTest altCheckTest;
 
 	private OfflinePlayer offlinePlayer;
-
+	
+	private File configFile;
 	private File altsYmlFile;
-	private Configuration altsConfig;
-
 	private File playerYmlFile;
+	private File addressYmlFile;
+	
+	private Configuration config;
+	private Configuration altsConfig;
 	private Configuration playerConfig;
+	private Configuration addressConfig;
 
 	private boolean liteBansBridge;
 
 	@Override
 	public void onEnable() {
 		this.getDataFolder().mkdirs();
+		
+		this.configFile = new File(this.getDataFolder(), "config.yml");
+		if (!this.configFile.exists()) {
+			try {
+				this.configFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			Configuration config = Config.getConfig(this.configFile);
+			
+			config.set("Enable-IP-Check", false);
+			config.set("Print-Debug", false);
+			config.set("Cache", 14);
+			
+			Config.saveConfig(config, this.configFile);
+		}
+		this.config = Config.getConfig(this.configFile);
 
 		this.altsYmlFile = new File(this.getDataFolder(), "alts.yml");
 		if (!this.altsYmlFile.exists()) {
@@ -80,6 +105,16 @@ public class Main extends Plugin {
 			}
 		}
 		this.playerConfig = Config.getConfig(this.playerYmlFile);
+		
+		this.addressYmlFile = new File(this.getDataFolder(), "address.yml");
+		if (!this.addressYmlFile.exists()) {
+			try {
+				this.addressYmlFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		this.addressConfig = Config.getConfig(this.addressYmlFile);
 
 		this.altChecker = new AltChecker(this);
 		this.altCheckTest = new AltCheckTest(this);
@@ -90,12 +125,21 @@ public class Main extends Plugin {
 
 		this.getProxy().getPluginManager().registerListener(this, new EventListener(this));
 		this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
+		
+		if (this.config.getBoolean("Enable-IP-Check")) {
+			this.kokuminIPChecker = new KokuminIPChecker(this);
+			
+			if (this.config.getBoolean("Print-Debug")) {
+				this.kokuminIPChecker.setPrintDebug(true);
+			}
+		}
 	}
 
 	@Override
 	public void onDisable() {
 		Config.saveConfig(this.altsConfig, this.altsYmlFile);
 		Config.saveConfig(this.playerConfig, this.playerYmlFile);
+		Config.saveConfig(this.addressConfig, this.addressYmlFile);
 	}
 
 	@SuppressWarnings("deprecation")

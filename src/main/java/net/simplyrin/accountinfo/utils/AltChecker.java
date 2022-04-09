@@ -72,7 +72,11 @@ public class AltChecker {
 	}
 
 	public boolean hasPut(String uuid) {
-		return this.instance.getAltsConfig().getKeys().contains(uuid);
+		try {
+			return this.instance.getAltsConfig().getKeys().contains(uuid);
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	public List<String> getAltsByHostAddress(String hostaddress) {

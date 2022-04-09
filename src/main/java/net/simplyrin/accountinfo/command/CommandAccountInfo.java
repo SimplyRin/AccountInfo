@@ -73,7 +73,7 @@ public class CommandAccountInfo extends Command {
 					op = this.instance.getOfflinePlayer().getOfflinePlayer(args[0]);
 				}
 
-				if (this.instance.getAltChecker().hasPut(op.getUniqueId().toString())) {
+				if (op != null && this.instance.getAltChecker().hasPut(op.getUniqueId().toString())) {
 					Set<String> alts_ = new HashSet<>();
 
 					Set<UUID> uuids = this.instance.getAltCheckTest().getAltsByUUID(op.getUniqueId());
@@ -94,11 +94,29 @@ public class CommandAccountInfo extends Command {
 						}
 					}
 					for (String address : addresses_) {
-						if (this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(null, address)) {
-							addresses.add("§8- §c" + address /* + " §8- §e" + be.getReason() */);
-						} else {
-							addresses.add("§8- §a" + address);
+						
+						var tag = "";
+						
+						if (this.instance.getKokuminIPChecker() != null) {
+							tag = "§7[?] ";
+							
+							var data = this.instance.getKokuminIPChecker().get(address);
+							var ipData = data.getIpData();
+							if (ipData != null) {
+								if (ipData.getMobile()) {
+									tag = "§9[M] ";
+								} else if (ipData.getProxy()) {
+									tag = "§c[P] ";
+								} else if (ipData.getHosting()) {
+									tag = "§6[V] ";
+								} else {
+									tag = "§a[N] ";
+								}
+							}
 						}
+						
+						var banned = this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(null, address);
+						addresses.add("§8- §a" + tag + (banned ? "§c§n" : "") + address);
 					}
 					this.instance.info(sender, "§b----------" + op.getName() + "の情報 ----------");
 					this.instance.info(sender, "§e§lサブアカウント一覧");
@@ -114,6 +132,11 @@ public class CommandAccountInfo extends Command {
 							this.instance.info(sender, "...and " + (addresses.size() - 10) + " more addresses found.");
 							break;
 						}
+					}
+					
+					if (this.instance.getKokuminIPChecker() != null) {
+						this.instance.info(sender, "§b---------- Address 色情報 ----------");
+						this.instance.info(sender, "§a[N]通常§7, §9[M]モバイル回線§7, §6[V]VPS§7, §c[P]Proxy/VPN§7, [?]検索中");
 					}
 				} else {
 					this.instance.info(sender, "§c" + args[0] + "はログインしたことがありません");
