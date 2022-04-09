@@ -6,6 +6,7 @@ import java.io.IOException;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
@@ -170,6 +171,10 @@ public class Main extends Plugin {
 		if (sender != null) {
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', args));
 		}
+	}
+	
+	public void info(CommandSender sender, TextComponent args) {
+		sender.sendMessage(args);
 	}
 
 }

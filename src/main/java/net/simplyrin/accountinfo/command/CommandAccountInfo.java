@@ -1,12 +1,20 @@
 package net.simplyrin.accountinfo.command;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import litebans.api.Database;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.plugin.Command;
 import net.simplyrin.accountinfo.Main;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
@@ -84,7 +92,7 @@ public class CommandAccountInfo extends Command {
 					Set<String> addresses_ = this.instance.getAltCheckTest().getIPs(op.getUniqueId());
 
 					Set<String> alts = new HashSet<String>();
-					Set<String> addresses = new HashSet<String>();
+					List<TextComponent> addresses = new ArrayList<>();
 					for (String alt : alts_) {
 						CachedPlayer cachedPlayer = this.instance.getOfflinePlayer().getOfflinePlayer(alt);
 						if (this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(cachedPlayer.getUniqueId(), null)) {
@@ -95,6 +103,7 @@ public class CommandAccountInfo extends Command {
 					}
 					for (String address : addresses_) {
 						
+						TextComponent textComponent = null;
 						var tag = "";
 						
 						if (this.instance.getKokuminIPChecker() != null) {
@@ -114,25 +123,92 @@ public class CommandAccountInfo extends Command {
 								}
 								
 								tag += "[" + ipData.getCountryCode() + "] ";
+								
+								textComponent = new TextComponent("§8- §a" + tag);
+								
+								var hover = "§f{\n"
+										+ "  §e\"Query\"§f: §e\"" + ipData.getQuery() + "\"§f,\n"
+										// + "  §e\"Hostname\"§f: §e\"" + ipData.getReverse() + "\"§f,\n"
+										+ "  §e\"Continent\"§f: §e\"" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\"§f,\n"
+										+ "  §e\"Country\"§f: §e\"" + ipData.getCountryCode() + " (" + ipData.getCountry() + ")\"§f,\n"
+										+ "  §e\"ISP\"§f: §e\"" + ipData.getIsp() + "\"\n"
+										+ "§f}";
+								
+								textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hover)));
 							}
 						}
 						
 						var banned = this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(null, address);
-						addresses.add("§8- §a" + tag + (banned ? "§c§n" : "") + address);
+						if (textComponent != null) {
+							textComponent.addExtra((banned ? "§c§n" : "") + tag.substring(0, 2) + address);
+							textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api/#" + address));
+							
+							addresses.add(textComponent);
+						} else {
+							addresses.add(new TextComponent("§8- §a" + tag + (banned ? "§c§n" : "") + address));
+						}
 					}
-					this.instance.info(sender, "§b----------" + op.getName() + "の情報 ----------");
+					this.instance.info(sender, "§b---------- " + op.getName() + "の情報 ----------");
 					this.instance.info(sender, "§e§lサブアカウント一覧");
 					for (String alt : alts) {
 						this.instance.info(sender, alt);
 					}
-					this.instance.info(sender, "§e§lIP §8§l- §e§lAddress & Hostname 一覧");
-					int i = 10;
-					for (String address : addresses) {
-						this.instance.info(sender, address);
-						i--;
-						if (i <= 0) {
-							this.instance.info(sender, "...and " + (addresses.size() - 10) + " more addresses found.");
-							break;
+
+					if (addresses.size() >= 11) {
+						var split = this.divide(addresses, 10);
+						
+						var page = 0;
+						var maxPage = split.size();
+
+						if (args.length > 1) {
+							try {
+								page = Integer.valueOf(args[1]);
+								if (page != 0) {
+									page--;
+								}
+							} catch (Exception e) {
+							}
+						}
+						
+						if (page >= maxPage) {
+							page = maxPage - 1;
+						} else if (page <= -1) {
+							page = 0;
+						}
+						
+						this.instance.info(sender, "§e§lIP §8§l- §e§lAddress & Hostname 一覧");
+						
+						var base = new TextComponent("§e§l        ページ ");
+						var back = new TextComponent("§e§l◀");
+						back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accinfo " + op.getName() + " " + (page == 0 ? 1 : page)));
+						back.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("/accinfo " + op.getName() + " " + (page == 0 ? 1 : page))));
+						base.addExtra(back);
+						
+						var mid = new TextComponent("§e§l (" + (page + 1) + "/" + maxPage + ") ");
+						base.addExtra(mid);
+						
+						var next = new TextComponent("§e§l▶");
+						var value = page + 2;
+						if ((page + 1) == maxPage) {
+							value = maxPage;
+						}
+						
+						next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accinfo " + op.getName() + " " + (value)));
+						next.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("/accinfo " + op.getName() + " " + (value))));
+						base.addExtra(next);
+
+						var list = split.get(page);
+						
+						for (TextComponent address : list) {
+							this.instance.info(sender, address);
+						}
+						
+						this.instance.info(sender, base);
+					} else {
+						this.instance.info(sender, "§e§lIP §8§l- §e§lAddress & Hostname 一覧");
+						
+						for (TextComponent address : addresses) {
+							this.instance.info(sender, address);
 						}
 					}
 					
@@ -149,6 +225,28 @@ public class CommandAccountInfo extends Command {
 
 		this.instance.info(sender, "§c/accinfo <player>");
 		return;
+	}
+	
+	/**
+	 * @author seijikohara
+	 * @url https://qiita.com/seijikohara/items/ae3c428d7a7f6f013c0a
+	 */
+	public <T> List<List<T>> divide(List<T> original, int size) {
+		if (original == null || original.isEmpty() || size <= 0) {
+			return Collections.emptyList();
+		}
+
+		try {
+			int block = original.size() / size + (original.size() % size > 0 ? 1 : 0);
+
+			return IntStream.range(0, block).boxed().map(i -> {
+				int start = i * size;
+				int end = Math.min(start + size, original.size());
+				return original.subList(start, end);
+			}).collect(Collectors.toList());
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 }
