@@ -141,7 +141,7 @@ public class CommandAccountInfo extends Command {
 						var banned = this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(null, address);
 						if (textComponent != null) {
 							textComponent.addExtra((banned ? "§c§n" : "") + tag.substring(0, 2) + address);
-							textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api/#" + address));
+							textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + address));
 							
 							addresses.add(textComponent);
 						} else {
