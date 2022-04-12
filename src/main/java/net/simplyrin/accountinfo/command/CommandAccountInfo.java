@@ -17,6 +17,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.plugin.Command;
 import net.simplyrin.accountinfo.Main;
+import net.simplyrin.accountinfo.kokuminipchecker.IpData;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
 import net.simplyrin.accountinfo.utils.Names;
 
@@ -91,14 +92,35 @@ public class CommandAccountInfo extends Command {
 
 					Set<String> addresses_ = this.instance.getAltCheckTest().getIPs(op.getUniqueId());
 
-					Set<String> alts = new HashSet<String>();
+					List<TextComponent> alts = new ArrayList<>();
 					List<TextComponent> addresses = new ArrayList<>();
 					for (String alt : alts_) {
 						CachedPlayer cachedPlayer = this.instance.getOfflinePlayer().getOfflinePlayer(alt);
+						
+						var lastIp = this.instance.getAltsConfig().getString(cachedPlayer.getUniqueId().toString() + ".ip.last-hostaddress");
+						
+						var base = new TextComponent("§8- ");
+						base.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + lastIp));
+
+						String ip = lastIp;
+						String tag = "";
+						
+						if (this.instance.getKokuminIPChecker() != null) {
+							var data = this.instance.getKokuminIPChecker().get(lastIp);
+							var ipData = data.getIpData();
+							if (ipData != null) {
+								tag = this.getTagAndCountry(ipData);
+							}
+						}
+						
+						base.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§a最終ログイン IP:\n§8- §a" + tag + ip)));
+						
 						if (this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(cachedPlayer.getUniqueId(), null)) {
-							alts.add("§8- §c" + alt /* + " §8- §e" + be.getReason() */);
+							base.addExtra("§c" + alt);
+							alts.add(base /* + " §8- §e" + be.getReason() */);
 						} else {
-							alts.add("§8- §a" + alt);
+							base.addExtra("§a" + alt);
+							alts.add(base);
 						}
 					}
 					for (String address : addresses_) {
@@ -112,18 +134,8 @@ public class CommandAccountInfo extends Command {
 							var data = this.instance.getKokuminIPChecker().get(address);
 							var ipData = data.getIpData();
 							if (ipData != null) {
-								if (ipData.getMobile()) {
-									tag = "§9[M] ";
-								} else if (ipData.getProxy()) {
-									tag = "§c[P] ";
-								} else if (ipData.getHosting()) {
-									tag = "§6[V] ";
-								} else {
-									tag = "§a[N] ";
-								}
-								
-								tag += "[" + ipData.getCountryCode() + "] ";
-								
+								tag = this.getTagAndCountry(ipData);
+
 								textComponent = new TextComponent("§8- §a" + tag);
 								
 								var hover = "§f{\n"
@@ -140,7 +152,7 @@ public class CommandAccountInfo extends Command {
 						
 						var banned = this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(null, address);
 						if (textComponent != null) {
-							textComponent.addExtra((banned ? "§c§n" : "") + tag.substring(0, 2) + address);
+							textComponent.addExtra((banned ? "§c§n" : "") + (tag.length() > 2 ? tag.substring(0, 2) : "") + address);
 							textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + address));
 							
 							addresses.add(textComponent);
@@ -150,7 +162,7 @@ public class CommandAccountInfo extends Command {
 					}
 					this.instance.info(sender, "§b---------- " + op.getName() + "の情報 ----------");
 					this.instance.info(sender, "§e§lサブアカウント一覧");
-					for (String alt : alts) {
+					for (TextComponent alt : alts) {
 						this.instance.info(sender, alt);
 					}
 
@@ -247,6 +259,23 @@ public class CommandAccountInfo extends Command {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+	
+	public String getTagAndCountry(IpData ipData) {
+		String tag = "";
+		if (ipData.getMobile()) {
+			tag = "§9[M] ";
+		} else if (ipData.getProxy()) {
+			tag = "§c[P] ";
+		} else if (ipData.getHosting()) {
+			tag = "§6[V] ";
+		} else {
+			tag = "§a[N] ";
+		}
+		
+		tag += "[" + ipData.getCountryCode() + "] ";
+		
+		return tag;
 	}
 
 }

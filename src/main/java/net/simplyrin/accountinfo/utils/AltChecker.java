@@ -44,6 +44,8 @@ public class AltChecker {
 
 	public void put(String playerName, String uuid, String hostname, String hostaddress) {
 		this.instance.getAltsConfig().set(uuid + ".mcid", playerName);
+		this.instance.getAltsConfig().set(uuid + ".ip.last-hostname", hostname);
+		this.instance.getAltsConfig().set(uuid + ".ip.last-hostaddress", hostaddress);
 
 		List<String> hostnames = new ArrayList<String>();
 		List<String> hostaddresses = new ArrayList<String>();
@@ -68,6 +70,11 @@ public class AltChecker {
 		} else {
 			hostaddresses.add(hostaddress);
 			this.instance.getAltsConfig().set(uuid + ".ip.hostaddresses", hostaddresses);
+		}
+		
+		if (this.instance.getKokuminIPChecker() != null) {
+			this.instance.getKokuminIPChecker().get(hostname);
+			this.instance.getKokuminIPChecker().get(hostaddress);
 		}
 	}
 
