@@ -94,5 +94,13 @@ public class AltCheckTest {
 		}
 		return null;
 	}
+	
+	public String getLastHostAddress(UUID uuid) {
+		return this.instance.getAltsConfig().getString(uuid.toString() + ".ip.last-hostaddress", null);
+	}
+	
+	public long getLastLogin(UUID uuid) {
+		return this.instance.getAltsConfig().getLong(uuid.toString() + ".ip.last-login", 0);
+	}
 
 }

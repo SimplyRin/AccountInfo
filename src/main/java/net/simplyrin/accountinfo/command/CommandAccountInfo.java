@@ -1,7 +1,9 @@
 package net.simplyrin.accountinfo.command;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -97,23 +99,38 @@ public class CommandAccountInfo extends Command {
 					for (String alt : alts_) {
 						CachedPlayer cachedPlayer = this.instance.getOfflinePlayer().getOfflinePlayer(alt);
 						
-						var lastIp = this.instance.getAltsConfig().getString(cachedPlayer.getUniqueId().toString() + ".ip.last-hostaddress");
+						var lastIp = this.instance.getAltCheckTest().getLastHostAddress(cachedPlayer.getUniqueId());// this.instance.getAltsConfig().getString(cachedPlayer.getUniqueId().toString() + ".ip.last-hostaddress");
 						
 						var base = new TextComponent("§8- ");
-						base.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + lastIp));
 
-						String ip = lastIp;
-						String tag = "";
+						String tag = "不明";
+						String ipHover = null;
 						
-						if (this.instance.getKokuminIPChecker() != null) {
+						if (this.instance.getKokuminIPChecker() != null && lastIp != null) {
+							base.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + lastIp));
+							
+							tag = "§7[?] ";
+							
 							var data = this.instance.getKokuminIPChecker().get(lastIp);
 							var ipData = data.getIpData();
 							if (ipData != null) {
-								tag = this.getTagAndCountry(ipData);
+								tag = this.getTagAndCountry(ipData, true);
+								ipHover = this.getAddressHoverJson(ipData);
 							}
 						}
 						
-						base.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§a最終ログイン IP:\n§8- §a" + tag + ip)));
+						String date = "不明";
+						var lastLogin = this.instance.getAltCheckTest().getLastLogin(cachedPlayer.getUniqueId());
+						if (lastLogin != 0) {
+							var sdf = new SimpleDateFormat(this.instance.getSdfFormat());
+							date = sdf.format(new Date(lastLogin));
+						}
+
+						base.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§e最終ログイン日:\n"
+								+ "§8- §a" + date + "\n"
+								+ "§e最終ログイン IP:\n"
+								+ "§8- §a" + tag + (lastIp != null ? lastIp : "")
+								+ (ipHover != null ? "\n§eIP 情報:\n" + ipHover : ""))));
 						
 						if (this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(cachedPlayer.getUniqueId(), null)) {
 							base.addExtra("§c" + alt);
@@ -134,18 +151,15 @@ public class CommandAccountInfo extends Command {
 							var data = this.instance.getKokuminIPChecker().get(address);
 							var ipData = data.getIpData();
 							if (ipData != null) {
-								tag = this.getTagAndCountry(ipData);
+								tag = this.getTagAndCountry(ipData, false);
 
 								textComponent = new TextComponent("§8- §a" + tag);
 								
-								var hover = "§f{\n"
-										+ "  §e\"Query\"§f: §e\"" + ipData.getQuery() + "\"§f,\n"
-										// + "  §e\"Hostname\"§f: §e\"" + ipData.getReverse() + "\"§f,\n"
-										+ "  §e\"Continent\"§f: §e\"" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\"§f,\n"
-										+ "  §e\"Country\"§f: §e\"" + ipData.getCountryCode() + " (" + ipData.getCountry() + ")\"§f,\n"
-										+ "  §e\"ISP\"§f: §e\"" + ipData.getIsp() + "\"\n"
-										+ "§f}";
-								
+								var hover = "§eIP 回線タイプ:\n"
+										+ "§8- " + this.getAddressType(ipData) + "\n"
+										+ "§eIP 情報:\n"
+										+ this.getAddressHoverJson(ipData);
+
 								textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hover)));
 							}
 						}
@@ -191,22 +205,30 @@ public class CommandAccountInfo extends Command {
 						this.instance.info(sender, "§e§lIP §8§l- §e§lAddress & Hostname 一覧");
 						
 						var base = new TextComponent("§e§l        ページ ");
-						var back = new TextComponent("§e§l◀");
-						back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accinfo " + op.getName() + " " + (page == 0 ? 1 : page)));
-						back.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("/accinfo " + op.getName() + " " + (page == 0 ? 1 : page))));
+						var back = new TextComponent("§7§l◀");
+						if (page >= 1) {
+							back = new TextComponent("§e§l◀");
+							back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accinfo " + op.getName() + " " + (page == 0 ? 1 : page)));
+							back.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("/accinfo " + op.getName() + " " + (page == 0 ? 1 : page))));
+						}
+
 						base.addExtra(back);
 						
 						var mid = new TextComponent("§e§l (" + (page + 1) + "/" + maxPage + ") ");
 						base.addExtra(mid);
-						
-						var next = new TextComponent("§e§l▶");
+
 						var value = page + 2;
 						if ((page + 1) == maxPage) {
 							value = maxPage;
 						}
 						
-						next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accinfo " + op.getName() + " " + (value)));
-						next.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("/accinfo " + op.getName() + " " + (value))));
+						var next = new TextComponent("§7§l▶");
+						if ((page + 1) != maxPage) {
+							next = new TextComponent("§e§l▶");
+							next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accinfo " + op.getName() + " " + (value)));
+							next.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("/accinfo " + op.getName() + " " + (value))));
+						}
+
 						base.addExtra(next);
 
 						var list = split.get(page);
@@ -262,20 +284,49 @@ public class CommandAccountInfo extends Command {
 	}
 	
 	public String getTagAndCountry(IpData ipData) {
+		return this.getTagAndCountry(ipData, false);
+	}
+	
+	public String getTagAndCountry(IpData ipData, boolean _long) {
 		String tag = "";
 		if (ipData.getMobile()) {
-			tag = "§9[M] ";
+			tag = "§9[M" + (_long ? "OBILE" : "") + "] ";
 		} else if (ipData.getProxy()) {
-			tag = "§c[P] ";
+			tag = "§c[P" + (_long ? "ROXY/VPN" : "") + "] ";
 		} else if (ipData.getHosting()) {
-			tag = "§6[V] ";
+			tag = "§6[V" + (_long ? "PS" : "") + "] ";
 		} else {
-			tag = "§a[N] ";
+			tag = "§a[N" + (_long ? "ORMAL" : "") + "] ";
 		}
 		
 		tag += "[" + ipData.getCountryCode() + "] ";
 		
 		return tag;
+	}
+	
+	public String getAddressType(IpData ipData) {
+		String tag = "";
+		if (ipData.getMobile()) {
+			tag = "§9[MOBILE] キャリア/モバイル回線";
+		} else if (ipData.getProxy()) {
+			tag = "§c[VPN] Proxy / VPN";
+		} else if (ipData.getHosting()) {
+			tag = "§6[VPS] Hosting";
+		} else {
+			tag = "§a[NORMAL] 通常";
+		}
+
+		return tag;
+	}
+	
+	public String getAddressHoverJson(IpData ipData) {
+		return "§f{\n"
+				+ "  §e\"Query\"§f: §e\"" + ipData.getQuery() + "\"§f,\n"
+				// + "  §e\"Hostname\"§f: §e\"" + ipData.getReverse() + "\"§f,\n"
+				+ "  §e\"Continent\"§f: §e\"" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\"§f,\n"
+				+ "  §e\"Country\"§f: §e\"" + ipData.getCountryCode() + " (" + ipData.getCountry() + ")\"§f,\n"
+				+ "  §e\"ISP\"§f: §e\"" + ipData.getIsp() + "\"\n"
+				+ "§f}";
 	}
 
 }

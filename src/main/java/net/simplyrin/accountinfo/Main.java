@@ -2,6 +2,7 @@ package net.simplyrin.accountinfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.TimeZone;
 
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
@@ -47,6 +48,8 @@ public class Main extends Plugin {
 	private String prefix = "&7[&cAccountInfo&7] &r";
 	
 	private KokuminIPChecker kokuminIPChecker;
+	private TimeZone timeZone;
+	private String sdfFormat;
 
 	private AltChecker altChecker;
 	private AltCheckTest altCheckTest;
@@ -82,6 +85,8 @@ public class Main extends Plugin {
 			config.set("Enable-IP-Check", false);
 			config.set("Print-Debug", false);
 			config.set("Cache", 14);
+			config.set("TimeZone", "Asia/Tokyo");
+			config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
 			
 			Config.saveConfig(config, this.configFile);
 		}
@@ -134,12 +139,44 @@ public class Main extends Plugin {
 				this.kokuminIPChecker.setPrintDebug(true);
 			}
 		}
+		
+		// 1.4.5
+		if (this.config.getString("TimeZone", null) != null) {
+			this.config.set("TimeZone", "Asia/Tokyo");
+			
+			this.saveConfig();
+		}
+		
+		if (this.config.getString("SdfFormat", null) != null) {
+			this.config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
+			
+			this.saveConfig();
+		}
+
+		this.timeZone = TimeZone.getTimeZone(this.config.getString("TimeZone"));
+		this.sdfFormat = this.config.getString("SdfFormat");
 	}
 
 	@Override
 	public void onDisable() {
+		this.saveAltsConfig();
+		this.savePlayerConfig();
+		this.saveAddressConfig();
+	}
+	
+	public void saveConfig() {
+		Config.saveConfig(this.config, this.configFile);
+	}
+	
+	public void saveAltsConfig() {
 		Config.saveConfig(this.altsConfig, this.altsYmlFile);
+	}
+	
+	public void savePlayerConfig() {
 		Config.saveConfig(this.playerConfig, this.playerYmlFile);
+	}
+	
+	public void saveAddressConfig() {
 		Config.saveConfig(this.addressConfig, this.addressYmlFile);
 	}
 
