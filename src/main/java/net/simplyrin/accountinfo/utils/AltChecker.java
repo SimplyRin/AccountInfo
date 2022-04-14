@@ -43,6 +43,9 @@ public class AltChecker {
 	}
 
 	public void put(String playerName, String uuid, String hostname, String hostaddress) {
+		this.instance.getPlayerConfig().set("player." + playerName, uuid);
+		this.instance.getPlayerConfig().set("uuid." + uuid, playerName);
+		
 		this.instance.getAltsConfig().set(uuid + ".mcid", playerName);
 		this.instance.getAltsConfig().set(uuid + ".ip.last-hostname", hostname);
 		this.instance.getAltsConfig().set(uuid + ".ip.last-hostaddress", hostaddress);
