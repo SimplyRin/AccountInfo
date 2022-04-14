@@ -14,7 +14,6 @@ import net.md_5.bungee.config.Configuration;
 import net.simplyrin.accountinfo.command.CommandAccountInfo;
 import net.simplyrin.accountinfo.config.Config;
 import net.simplyrin.accountinfo.kokuminipchecker.KokuminIPChecker;
-import net.simplyrin.accountinfo.listeners.EventListener;
 import net.simplyrin.accountinfo.listeners.OfflinePlayer;
 import net.simplyrin.accountinfo.utils.AltCheckTest;
 import net.simplyrin.accountinfo.utils.AltChecker;
@@ -129,8 +128,7 @@ public class Main extends Plugin {
 
 		this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this));
 
-		this.getProxy().getPluginManager().registerListener(this, new EventListener(this));
-		this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
+		//this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
 		
 		if (this.config.getBoolean("Enable-IP-Check")) {
 			this.kokuminIPChecker = new KokuminIPChecker(this);
