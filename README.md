@@ -1,5 +1,7 @@
 # AccountInfo for BungeeCord
-BungeeCord 上でプレイヤーの IP、プレイヤー名を記録するプラグイン
+プレイヤーの IP、プレイヤー名を記録し、サブアカウント一覧を検索できる BungeeCord プラグイン
+
+ログインした IP も記録され、その IP が、VPN などかも確認できる機能付き
 
 [LiteBans](https://www.spigotmc.org/resources/3715/) で Ban されているプレイヤーは名前が赤色で表示されます。
 
