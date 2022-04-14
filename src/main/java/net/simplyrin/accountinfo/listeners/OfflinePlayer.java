@@ -1,6 +1,8 @@
 package net.simplyrin.accountinfo.listeners;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -38,12 +40,18 @@ public class OfflinePlayer implements Listener {
 
 	private final Main instance;
 
+	private ExecutorService executorService = Executors.newFixedThreadPool(64);
+	
 	@EventHandler
 	public void onLogin(PostLoginEvent event) {
 		ProxiedPlayer player = event.getPlayer();
 
 		this.instance.getPlayerConfig().set("player." + player.getName().toLowerCase(), player.getUniqueId().toString());
 		this.instance.getPlayerConfig().set("uuid." + player.getUniqueId(), player.getName());
+		
+		this.executorService.execute(() -> {
+			this.instance.getAltChecker().put(event.getPlayer());
+		});
 	}
 
 	public CachedPlayer getOfflinePlayer(String name) {
