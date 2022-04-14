@@ -5,8 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.simplyrin.accountinfo.Main;
@@ -43,11 +42,10 @@ public class OfflinePlayer implements Listener {
 	private ExecutorService executorService = Executors.newFixedThreadPool(64);
 	
 	@EventHandler
-	public void onLogin(PostLoginEvent event) {
-		ProxiedPlayer player = event.getPlayer();
-
-		this.instance.getPlayerConfig().set("player." + player.getName().toLowerCase(), player.getUniqueId().toString());
-		this.instance.getPlayerConfig().set("uuid." + player.getUniqueId(), player.getName());
+	public void onServerSwitch(ServerSwitchEvent event) {
+		if (event.getFrom() != null) {
+			return;
+		}
 		
 		this.executorService.execute(() -> {
 			this.instance.getAltChecker().put(event.getPlayer());
