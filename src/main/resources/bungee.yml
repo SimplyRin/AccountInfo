@@ -1,5 +1,5 @@
 main: net.simplyrin.accountinfo.Main
 name: AccountInfo
-version: 1.4.6
+version: 1.4.7
 softDepends: ["LiteBans"]
 author: SimplyRin, Nucha
