@@ -128,7 +128,7 @@ public class Main extends Plugin {
 
 		this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this));
 
-		//this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
+		this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
 		
 		if (this.config.getBoolean("Enable-IP-Check")) {
 			this.kokuminIPChecker = new KokuminIPChecker(this);
