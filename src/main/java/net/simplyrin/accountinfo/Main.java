@@ -141,13 +141,13 @@ public class Main extends Plugin {
 		}
 		
 		// 1.4.5
-		if (this.config.getString("TimeZone", null) != null) {
+		if (this.config.getString("TimeZone", null) == null) {
 			this.config.set("TimeZone", "Asia/Tokyo");
 			
 			this.saveConfig();
 		}
 		
-		if (this.config.getString("SdfFormat", null) != null) {
+		if (this.config.getString("SdfFormat", null) == null) {
 			this.config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
 			
 			this.saveConfig();
