@@ -4,8 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -59,8 +61,21 @@ public class CommandAccountInfo extends Command {
 		}
 
 		if (args.length > 0) {
-			if (args[0].equalsIgnoreCase("license")) {
-
+			if (args[0].equalsIgnoreCase("-convert") && sender.hasPermission("accountinfo.admin")) {
+				this.instance.info(sender, "§7player.yml のプレイヤーキーを正しく修正しています...。");
+				
+				var map = new HashMap<String, String>();
+				for (String key : this.instance.getPlayerConfig().getSection("player").getKeys()) {
+					map.put(key, this.instance.getPlayerConfig().getString("player." + key));
+				}
+				
+				for (Entry<String, String> entry : map.entrySet()) {
+					this.instance.getPlayerConfig().set("player." + entry.getKey(), null);
+					this.instance.getPlayerConfig().set("player." + entry.getKey().toLowerCase(), entry.getValue());
+				}
+				
+				this.instance.info(sender, "§aplayer.yml のプレイヤーキーを正しく修正しました。");
+				return;
 			}
 
 			this.instance.getProxy().getScheduler().runAsync(this.instance, () -> {
