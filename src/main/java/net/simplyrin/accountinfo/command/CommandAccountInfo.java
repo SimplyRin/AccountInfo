@@ -189,64 +189,149 @@ public class CommandAccountInfo extends Command {
 							addresses.add(new TextComponent("§8- §a" + tag + (banned ? "§c§n" : "") + address));
 						}
 					}
-					this.instance.info(sender, "§b---------- " + op.getName() + "の情報 ----------");
-					this.instance.info(sender, "§e§lサブアカウント一覧");
-					for (TextComponent alt : alts) {
-						this.instance.info(sender, alt);
-					}
 
-					if (addresses.size() >= 11) {
-						var split = this.divide(addresses, 10);
-						
-						var page = 0;
-						var maxPage = split.size();
-
-						if (args.length > 1) {
-							try {
-								page = Integer.valueOf(args[1]);
-								if (page != 0) {
-									page--;
+					// ページ取得
+					var altPage = 0;
+					var ipPage = 0;
+					
+					if (args.length > 1) {
+						try {
+							if (args[1].startsWith("altPage:")) {
+								altPage = Integer.valueOf(args[1].split("[:]")[1]);
+								if (altPage != 0) {
+									altPage--;
 								}
-							} catch (Exception e) {
 							}
+						} catch (Exception e) {
+						}
+					}
+					
+					if (args.length > 2) {
+						try {
+							if (args[2].startsWith("ipPage:")) {
+								ipPage = Integer.valueOf(args[2].split("[:]")[1]);
+								if (ipPage != 0) {
+									ipPage--;
+								}
+							}
+						} catch (Exception e) {
+						}
+					}
+					
+					this.instance.info(sender, "§b---------- " + op.getName() + "の情報 ----------");
+
+					// サブアカウント一覧
+					
+					if (alts.size() >= 7) {
+						var split = this.divide(alts, 6);
+						
+						var maxPage = split.size();
+						
+						if (altPage >= maxPage) {
+							altPage = maxPage - 1;
+						} else if (altPage <= -1) {
+							altPage = 0;
 						}
 						
-						if (page >= maxPage) {
-							page = maxPage - 1;
-						} else if (page <= -1) {
-							page = 0;
+						this.instance.info(sender, "§e§lサブアカウント一覧");
+						
+						var base = new TextComponent("§e§l        ページ ");
+						var back = new TextComponent("§7§l◀");
+						if (altPage >= 1) {
+							back = new TextComponent("§e§l◀");
+							
+							var command = "/accinfo " + op.getName() + " altPage:" + (altPage == 0 ? 1 : altPage) + " ipPage:" + (ipPage + 1); 
+							
+							back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+							back.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(command)));
+						}
+
+						base.addExtra(back);
+						
+						var mid = new TextComponent("§e§l (" + (altPage + 1) + "/" + maxPage + ") ");
+						base.addExtra(mid);
+
+						var value = altPage + 2;
+						if ((altPage + 1) == maxPage) {
+							value = maxPage;
+						}
+						
+						var next = new TextComponent("§7§l▶");
+						if ((altPage + 1) != maxPage) {
+							next = new TextComponent("§e§l▶");
+							
+							var command = "/accinfo " + op.getName() + " altPage:" + value + " ipPage:" + (ipPage + 1); 
+							
+							next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+							next.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(command)));
+						}
+
+						base.addExtra(next);
+
+						var list = split.get(altPage);
+						
+						for (TextComponent address : list) {
+							this.instance.info(sender, address);
+						}
+						
+						this.instance.info(sender, base);
+					} else {
+						this.instance.info(sender, "§e§lサブアカウント一覧");
+						
+						for (TextComponent address : alts) {
+							this.instance.info(sender, address);
+						}
+					}
+					
+					// IP 一覧
+
+					if (addresses.size() >= 7) {
+						var split = this.divide(addresses, 6);
+						
+						var maxPage = split.size();
+						
+						if (ipPage >= maxPage) {
+							ipPage = maxPage - 1;
+						} else if (ipPage <= -1) {
+							ipPage = 0;
 						}
 						
 						this.instance.info(sender, "§e§lIP §8§l- §e§lAddress & Hostname 一覧");
 						
 						var base = new TextComponent("§e§l        ページ ");
 						var back = new TextComponent("§7§l◀");
-						if (page >= 1) {
+						if (ipPage >= 1) {
 							back = new TextComponent("§e§l◀");
-							back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accinfo " + op.getName() + " " + (page == 0 ? 1 : page)));
-							back.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("/accinfo " + op.getName() + " " + (page == 0 ? 1 : page))));
+							
+							var command = "/accinfo " + op.getName() + " altPage:" + (altPage + 1) + " ipPage:" + (ipPage == 0 ? 1 : ipPage); 
+							
+							back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+							back.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(command)));
 						}
 
 						base.addExtra(back);
 						
-						var mid = new TextComponent("§e§l (" + (page + 1) + "/" + maxPage + ") ");
+						var mid = new TextComponent("§e§l (" + (ipPage + 1) + "/" + maxPage + ") ");
 						base.addExtra(mid);
 
-						var value = page + 2;
-						if ((page + 1) == maxPage) {
+						var value = ipPage + 2;
+						if ((ipPage + 1) == maxPage) {
 							value = maxPage;
 						}
 						
 						var next = new TextComponent("§7§l▶");
-						if ((page + 1) != maxPage) {
+						if ((ipPage + 1) != maxPage) {
 							next = new TextComponent("§e§l▶");
-							next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accinfo " + op.getName() + " " + (value)));
-							next.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("/accinfo " + op.getName() + " " + (value))));
+							
+							var command = "/accinfo " + op.getName() + " altPage:" + (altPage + 1) + " ipPage:" + value; 
+							
+							next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+							next.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(command)));
 						}
 
 						base.addExtra(next);
 
-						var list = split.get(page);
+						var list = split.get(ipPage);
 						
 						for (TextComponent address : list) {
 							this.instance.info(sender, address);
@@ -335,13 +420,10 @@ public class CommandAccountInfo extends Command {
 	}
 	
 	public String getAddressHoverJson(IpData ipData) {
-		return "§f{\n"
-				+ "  §e\"Query\"§f: §e\"" + ipData.getQuery() + "\"§f,\n"
-				// + "  §e\"Hostname\"§f: §e\"" + ipData.getReverse() + "\"§f,\n"
-				+ "  §e\"Continent\"§f: §e\"" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\"§f,\n"
-				+ "  §e\"Country\"§f: §e\"" + ipData.getCountryCode() + " (" + ipData.getCountry() + ")\"§f,\n"
-				+ "  §e\"ISP\"§f: §e\"" + ipData.getIsp() + "\"\n"
-				+ "§f}";
+		return "§8- §e検索 IP§f: §a" + ipData.getQuery() + "\n"
+				+ "§8- §e大陸§f: §a" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\n"
+				+ "§8- §e国§f: §a" + ipData.getCountryCode() + " (" + ipData.getCountry() + ")\n"
+				+ "§8- §eプロバイダ§f: §a" + ipData.getIsp() + "";
 	}
 
 }
