@@ -55,7 +55,6 @@ public class KokuminIPChecker {
 	
 	private Gson gson = new Gson();
 
-	private Thread commandThread;
 	private ExecutorService rateService = Executors.newFixedThreadPool(40);
 	private ExecutorService fetchService = Executors.newFixedThreadPool(128);
 
