@@ -5,7 +5,7 @@
 
 [LiteBans](https://www.spigotmc.org/resources/3715/) で Ban されているプレイヤーは名前が赤色で表示されます。
 
-[![Image from Gyazo](https://i.gyazo.com/80570e982f03e9a57f05aefa9f21635f.png)](https://gyazo.com/80570e982f03e9a57f05aefa9f21635f)
+https://user-images.githubusercontent.com/26184969/166138981-36209aba-2351-40cf-a4a2-7402631ac95e.mp4
 
 # Open Source License
 **・[natyu192 / KokuminServer | Apache License 2.0](https://github.com/natyu192/)**
