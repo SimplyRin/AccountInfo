@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.event.ServerSwitchEvent;
+import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.simplyrin.accountinfo.Main;
@@ -42,12 +42,14 @@ public class OfflinePlayer implements Listener {
 	private ExecutorService executorService = Executors.newFixedThreadPool(64);
 	
 	@EventHandler
-	public void onServerSwitch(ServerSwitchEvent event) {
-		if (event.getFrom() != null) {
-			return;
-		}
-		
+	public void onServerSwitch(PostLoginEvent event) {
 		this.executorService.execute(() -> {
+			try {
+				Thread.sleep(750);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
 			this.instance.getAltChecker().put(event.getPlayer());
 		});
 	}
