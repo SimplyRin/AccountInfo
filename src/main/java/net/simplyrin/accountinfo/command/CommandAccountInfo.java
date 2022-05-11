@@ -421,7 +421,7 @@ public class CommandAccountInfo extends Command {
 	
 	public String getAddressHoverJson(IpData ipData) {
 		return "§8- §e検索 IP§f: §a" + ipData.getQuery() + "\n"
-				+ "§8- §e大陸§f: §a" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\n"
+				+ "§8- §e地域§f: §a" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\n"
 				+ "§8- §e国§f: §a" + ipData.getCountryCode() + " (" + ipData.getCountry() + ")\n"
 				+ "§8- §eプロバイダ§f: §a" + ipData.getIsp() + "";
 	}
