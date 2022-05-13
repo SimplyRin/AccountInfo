@@ -42,7 +42,7 @@ import net.simplyrin.accountinfo.utils.AltChecker;
  * SOFTWARE.
  */
 @Getter
-public class Main extends Plugin {
+public class AccountInfo extends Plugin {
 
 	private String prefix = "&7[&cAccountInfo&7] &r";
 	

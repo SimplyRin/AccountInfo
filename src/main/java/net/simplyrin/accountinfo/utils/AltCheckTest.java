@@ -15,7 +15,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import lombok.RequiredArgsConstructor;
-import net.simplyrin.accountinfo.Main;
+import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.commonsio.IOUtils;
 
 /**
@@ -39,7 +39,7 @@ import net.simplyrin.accountinfo.commonsio.IOUtils;
 @RequiredArgsConstructor
 public class AltCheckTest {
 
-	private final Main instance;
+	private final AccountInfo instance;
 
 	public Set<UUID> getAltsByUUID(UUID uuid) {
 		Set<UUID> alts = new HashSet<>();

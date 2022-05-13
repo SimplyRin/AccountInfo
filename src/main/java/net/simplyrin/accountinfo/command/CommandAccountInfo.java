@@ -20,7 +20,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.plugin.Command;
-import net.simplyrin.accountinfo.Main;
+import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.kokuminipchecker.IpData;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
 import net.simplyrin.accountinfo.utils.Names;
@@ -45,9 +45,9 @@ import net.simplyrin.accountinfo.utils.Names;
  */
 public class CommandAccountInfo extends Command {
 
-	private Main instance;
+	private AccountInfo instance;
 
-	public CommandAccountInfo(Main instance) {
+	public CommandAccountInfo(AccountInfo instance) {
 		super("accinfo", null, "accountinfo");
 
 		this.instance = instance;

@@ -1,4 +1,4 @@
-main: net.simplyrin.accountinfo.Main
+main: net.simplyrin.accountinfo.AccountInfo
 name: AccountInfo
 version: 1.5.1
 softDepends: ["LiteBans"]

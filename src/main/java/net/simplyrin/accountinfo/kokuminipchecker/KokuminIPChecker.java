@@ -21,7 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.simplyrin.accountinfo.Main;
+import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.commonsio.IOUtils;
 import net.simplyrin.accountinfo.config.Config;
 
@@ -51,7 +51,7 @@ import net.simplyrin.accountinfo.config.Config;
 @RequiredArgsConstructor
 public class KokuminIPChecker {
 	
-	private final Main instance;
+	private final AccountInfo instance;
 	
 	private Gson gson = new Gson();
 
