@@ -31,6 +31,5 @@ import lombok.Getter;
 public class Names {
 
 	private String name;
-	private long changedToAt;
 
 }

@@ -23,7 +23,6 @@ import net.md_5.bungee.api.plugin.Command;
 import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.kokuminipchecker.IpData;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
-import net.simplyrin.accountinfo.utils.Names;
 
 /**
  * Created by natyu192.
@@ -90,11 +89,14 @@ public class CommandAccountInfo extends Command {
 
 					Set<String> altsNames = new HashSet<>();
 					alts.forEach(uuid -> {
-						List<Names> names = this.instance.getAltCheckTest().getMCIDbyUUID(uuid);
-						altsNames.add(names.get(names.size() - 1).getName());
+						String name = this.instance.getAltCheckTest().getMCIDbyUUID(uuid);
+						if (name != null) {
+							altsNames.add(name);
+						}
 					});
 					this.instance.info(sender, "§b----- " + args[0] + " からログインしたことのあるアカウント一覧 -----");
 					altsNames.forEach(name -> this.instance.info(sender, "§8- §a" + name));
+					return;
 				} else {
 					op = this.instance.getOfflinePlayer().getOfflinePlayer(args[0]);
 				}
