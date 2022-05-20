@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import litebans.api.Database;
+import lombok.var;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -45,11 +46,13 @@ import net.simplyrin.accountinfo.utils.CachedPlayer;
 public class CommandAccountInfo extends Command {
 
 	private AccountInfo instance;
+	private String command;
 
-	public CommandAccountInfo(AccountInfo instance) {
-		super("accinfo", null, "accountinfo");
+	public CommandAccountInfo(AccountInfo instance, String command) {
+		super(command, null);
 
 		this.instance = instance;
+		this.command = command;
 	}
 
 	@Override
@@ -242,7 +245,7 @@ public class CommandAccountInfo extends Command {
 						if (altPage >= 1) {
 							back = new TextComponent("§e§l◀");
 							
-							var command = "/accinfo " + op.getName() + " altPage:" + (altPage == 0 ? 1 : altPage) + " ipPage:" + (ipPage + 1); 
+							var command = "/" + this.command + " " + op.getName() + " altPage:" + (altPage == 0 ? 1 : altPage) + " ipPage:" + (ipPage + 1); 
 							
 							back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
 							back.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(command)));
@@ -262,7 +265,7 @@ public class CommandAccountInfo extends Command {
 						if ((altPage + 1) != maxPage) {
 							next = new TextComponent("§e§l▶");
 							
-							var command = "/accinfo " + op.getName() + " altPage:" + value + " ipPage:" + (ipPage + 1); 
+							var command = "/" + this.command + " " + op.getName() + " altPage:" + value + " ipPage:" + (ipPage + 1); 
 							
 							next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
 							next.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(command)));
@@ -305,7 +308,7 @@ public class CommandAccountInfo extends Command {
 						if (ipPage >= 1) {
 							back = new TextComponent("§e§l◀");
 							
-							var command = "/accinfo " + op.getName() + " altPage:" + (altPage + 1) + " ipPage:" + (ipPage == 0 ? 1 : ipPage); 
+							var command = "/" + this.command + " " + op.getName() + " altPage:" + (altPage + 1) + " ipPage:" + (ipPage == 0 ? 1 : ipPage); 
 							
 							back.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
 							back.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(command)));
@@ -325,7 +328,7 @@ public class CommandAccountInfo extends Command {
 						if ((ipPage + 1) != maxPage) {
 							next = new TextComponent("§e§l▶");
 							
-							var command = "/accinfo " + op.getName() + " altPage:" + (altPage + 1) + " ipPage:" + value; 
+							var command = "/" + this.command + " " + op.getName() + " altPage:" + (altPage + 1) + " ipPage:" + value; 
 							
 							next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
 							next.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(command)));
@@ -359,7 +362,7 @@ public class CommandAccountInfo extends Command {
 			return;
 		}
 
-		this.instance.info(sender, "§c/accinfo <player>");
+		this.instance.info(sender, "§c/" + this.command + " <player>");
 		return;
 	}
 	

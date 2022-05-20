@@ -1,8 +1,6 @@
 package net.simplyrin.accountinfo.listeners;
 
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.event.PostLoginEvent;
@@ -39,19 +37,9 @@ public class OfflinePlayer implements Listener {
 
 	private final AccountInfo instance;
 
-	private ExecutorService executorService = Executors.newFixedThreadPool(64);
-	
 	@EventHandler
 	public void onServerSwitch(PostLoginEvent event) {
-		this.executorService.execute(() -> {
-			try {
-				Thread.sleep(750);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
-			this.instance.getAltChecker().put(event.getPlayer());
-		});
+		this.instance.getCheckUniqueIds().add(event.getPlayer().getUniqueId());
 	}
 
 	public CachedPlayer getOfflinePlayer(String name) {

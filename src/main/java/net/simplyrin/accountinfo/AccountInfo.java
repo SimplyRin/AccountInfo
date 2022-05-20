@@ -2,9 +2,15 @@ package net.simplyrin.accountinfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
+import lombok.var;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -66,6 +72,8 @@ public class AccountInfo extends Plugin {
 	private Configuration addressConfig;
 
 	private boolean liteBansBridge;
+	
+	private List<UUID> checkUniqueIds;
 
 	@Override
 	public void onEnable() {
@@ -86,6 +94,7 @@ public class AccountInfo extends Plugin {
 			config.set("Cache", 14);
 			config.set("TimeZone", "Asia/Tokyo");
 			config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
+			config.set("Custom-Command", Arrays.asList("gaccinfo", "gaccountinfo"));
 			
 			Config.saveConfig(config, this.configFile);
 		}
@@ -120,16 +129,14 @@ public class AccountInfo extends Plugin {
 			}
 		}
 		this.addressConfig = Config.getConfig(this.addressYmlFile);
+		
+		this.checkUniqueIds = new ArrayList<>();
 
 		this.altChecker = new AltChecker(this);
 		this.altCheckTest = new AltCheckTest(this);
 
 		this.liteBansBridge = this.getProxy().getPluginManager().getPlugin("LiteBans") != null;
 
-		this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this));
-
-		this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
-		
 		if (this.config.getBoolean("Enable-IP-Check")) {
 			this.kokuminIPChecker = new KokuminIPChecker(this);
 			
@@ -150,13 +157,42 @@ public class AccountInfo extends Plugin {
 			
 			this.saveConfig();
 		}
+		
+		// 1.5.2
+		if (this.config.getStringList("Custom-Command").size() == 0) {
+			this.config.set("Custom-Command", Arrays.asList("gaccinfo", "gaccountinfo"));
+			
+			this.saveConfig();
+		}
+		
+		for (String command : this.config.getStringList("Custom-Command")) {
+			this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this, command));
+		}
+
+		this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
 
 		this.timeZone = TimeZone.getTimeZone(this.config.getString("TimeZone"));
 		this.sdfFormat = this.config.getString("SdfFormat");
+		
+		// 確認タスク
+		this.getProxy().getScheduler().schedule(this, () -> {
+			List<UUID> list = new ArrayList<>();
+			list.addAll(this.checkUniqueIds);
+			this.checkUniqueIds.clear();
+			
+			for (UUID uniqueId : list) {
+				var player = this.getProxy().getPlayer(uniqueId);
+				if (player != null) {
+					this.getAltChecker().put(player);
+				}
+			}
+		}, 0, 1, TimeUnit.MINUTES);
 	}
 
 	@Override
 	public void onDisable() {
+		this.getProxy().getScheduler().cancel(this);
+		
 		this.saveAltsConfig();
 		this.savePlayerConfig();
 		this.saveAddressConfig();
