@@ -1,11 +1,17 @@
 package net.simplyrin.accountinfo.utils;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.simplyrin.accountinfo.AccountInfo;
 
@@ -36,44 +42,66 @@ public class AltChecker {
 	public void put(ProxiedPlayer p) {
 		String playerName = p.getName();
 		String uuid = p.getUniqueId().toString();
-		String hostname = p.getAddress().getHostName();
-		String hostaddress = p.getAddress().getAddress().getHostAddress();
+		
+		var address = (InetSocketAddress) p.getSocketAddress();
+		String hostname = address.getHostName();
+		String hostaddress = address.getAddress().getHostAddress();
 
 		this.put(playerName, uuid, hostname, hostaddress);
 	}
 
 	public void put(String playerName, String uuid, String hostname, String hostaddress) {
-		this.instance.getPlayerConfig().set("player." + playerName.toLowerCase(), uuid);
-		this.instance.getPlayerConfig().set("uuid." + uuid, playerName);
+		this.instance.getPlayerConfig().addProperty("player." + playerName.toLowerCase(), uuid);
+		this.instance.getPlayerConfig().addProperty("uuid." + uuid, playerName);
 		
-		this.instance.getAltsConfig().set(uuid + ".mcid", playerName);
-		this.instance.getAltsConfig().set(uuid + ".ip.last-hostname", hostname);
-		this.instance.getAltsConfig().set(uuid + ".ip.last-hostaddress", hostaddress);
-		this.instance.getAltsConfig().set(uuid + ".ip.last-login", System.currentTimeMillis());
+		this.instance.getAltsConfig().addProperty(uuid + ".mcid", playerName);
+		this.instance.getAltsConfig().addProperty(uuid + ".ip.last-hostname", hostname);
+		this.instance.getAltsConfig().addProperty(uuid + ".ip.last-hostaddress", hostaddress);
+		this.instance.getAltsConfig().addProperty(uuid + ".ip.last-login", System.currentTimeMillis());
 
-		List<String> hostnames = new ArrayList<String>();
-		List<String> hostaddresses = new ArrayList<String>();
+		JsonArray hostnames = new JsonArray();
+		JsonArray hostaddresses = new JsonArray();
 
-		if (!this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames").isEmpty()) {
-			hostnames = this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames");
-			if (!hostnames.contains(hostname)) {
+		if (this.instance.getAltsConfig().has(uuid + ".ip.hostnames")) {
+			hostnames = this.instance.getAltsConfig().get(uuid + ".ip.hostnames").getAsJsonArray();
+			
+			boolean contains = false;
+			for (var js : hostnames) {
+				var str = js.getAsString();
+				
+				if (str.equalsIgnoreCase(hostname)) {
+					contains = true;
+				}
+			}
+
+			if (!contains) {
 				hostnames.add(hostname);
-				this.instance.getAltsConfig().set(uuid + ".ip.hostnames", hostnames);
+				this.instance.getAltsConfig().add(uuid + ".ip.hostnames", hostnames);
 			}
 		} else {
 			hostnames.add(hostname);
-			this.instance.getAltsConfig().set(uuid + ".ip.hostnames", hostnames);
+			this.instance.getAltsConfig().add(uuid + ".ip.hostnames", hostnames);
 		}
 
-		if (!this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses").isEmpty()) {
-			hostaddresses = this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses");
-			if (!hostaddresses.contains(hostaddress)) {
+		if (this.instance.getAltsConfig().has(uuid + ".ip.hostaddresses")) {
+			hostaddresses = this.instance.getAltsConfig().get(uuid + ".ip.hostaddresses").getAsJsonArray();
+			
+			boolean contains = false;
+			for (var js : hostaddresses) {
+				var str = js.getAsString();
+				
+				if (str.equalsIgnoreCase(hostaddress)) {
+					contains = true;
+				}
+			}
+			
+			if (!contains) {
 				hostaddresses.add(hostaddress);
-				this.instance.getAltsConfig().set(uuid + ".ip.hostaddresses", hostaddresses);
+				this.instance.getAltsConfig().add(uuid + ".ip.hostaddresses", hostaddresses);
 			}
 		} else {
 			hostaddresses.add(hostaddress);
-			this.instance.getAltsConfig().set(uuid + ".ip.hostaddresses", hostaddresses);
+			this.instance.getAltsConfig().add(uuid + ".ip.hostaddresses", hostaddresses);
 		}
 		
 		if (this.instance.getKokuminIPChecker() != null) {
@@ -84,7 +112,7 @@ public class AltChecker {
 
 	public boolean hasPut(String uuid) {
 		try {
-			return this.instance.getAltsConfig().getKeys().contains(uuid);
+			return this.instance.getAltsConfig().has(uuid + ".mcid");
 		} catch (Exception e) {
 			return false;
 		}
@@ -92,10 +120,23 @@ public class AltChecker {
 
 	public List<String> getAltsByHostAddress(String hostaddress) {
 		List<String> mcids = new ArrayList<String>();
-		for (String uuid : this.instance.getAltsConfig().getKeys()) {
-			if (!this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses").isEmpty()) {
-				if (this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses").contains(hostaddress)) {
-					mcids.add(this.getMCIDbyUUID(UUID.fromString(uuid)));
+		for (Entry<String, JsonElement> entry : this.instance.getAltsConfig().entrySet()) {
+			String key = entry.getKey();
+			
+			if (this.instance.getAltsConfig().has(key + ".ip.hostaddresses")) {
+				var hostaddresses = this.instance.getAltsConfig().get(key + ".ip.hostaddresses").getAsJsonArray();
+				
+				boolean contains = false;
+				for (var js : hostaddresses) {
+					var str = js.getAsString();
+					
+					if (str.equalsIgnoreCase(hostaddress)) {
+						contains = true;
+					}
+				}
+				
+				if (!contains) {
+					mcids.add(this.getMCIDbyUUID(UUID.fromString(key)));
 				}
 			}
 		}
@@ -104,10 +145,23 @@ public class AltChecker {
 
 	public List<String> getAltsByHostName(String hostname) {
 		List<String> mcids = new ArrayList<String>();
-		for (String uuid : this.instance.getAltsConfig().getKeys()) {
-			if (!this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames").isEmpty()) {
-				if (this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames").contains(hostname)) {
-					mcids.add(this.getMCIDbyUUID(UUID.fromString(uuid)));
+		for (Entry<String, JsonElement> entry : this.instance.getAltsConfig().entrySet()) {
+			String key = entry.getKey();
+			
+			if (this.instance.getAltsConfig().has(key + ".ip.hostnames")) {
+				var hostnames = this.instance.getAltsConfig().get(key + ".ip.hostnames").getAsJsonArray();
+				
+				boolean contains = false;
+				for (var js : hostnames) {
+					var str = js.getAsString();
+					
+					if (str.equalsIgnoreCase(hostname)) {
+						contains = true;
+					}
+				}
+				
+				if (!contains) {
+					mcids.add(this.getMCIDbyUUID(UUID.fromString(key)));
 				}
 			}
 		}
@@ -116,21 +170,24 @@ public class AltChecker {
 
 	public List<String> getAltsByMCID(String mcid) {
 		List<String> mcids = new ArrayList<String>();
-		for (String uuid : this.instance.getAltsConfig().getKeys()) {
-			if (this.instance.getAltsConfig().getString(uuid + ".mcid", null) != null && this.instance.getAltsConfig().getString(uuid + ".mcid").equalsIgnoreCase(mcid)) {
-				mcid = this.instance.getAltsConfig().getString(uuid + ".mcid");
-				List<String> hostnames = this.getHostNamesByMCID(mcid);
-				for (String hostname : hostnames) {
-					List<String> alts = this.getAltsByHostName(hostname);
+		for (Entry<String, JsonElement> entry : this.instance.getAltsConfig().entrySet()) {
+			var key = entry.getKey();
+			
+			if (this.instance.getAltsConfig().has(key + ".mcid") && this.instance.getAltsConfig().get(key + ".mcid").getAsString().equalsIgnoreCase(mcid)) {
+				mcid = this.instance.getAltsConfig().get(key + ".mcid").getAsString();
+				
+				JsonArray hostnames = this.getHostNamesByMCID(mcid);
+				for (JsonElement hostname : hostnames) {
+					List<String> alts = this.getAltsByHostName(hostname.getAsString());
 					for (String alt : alts) {
 						if (!mcids.contains(alt)) {
 							mcids.add(alt);
 						}
 					}
 				}
-				List<String> addresses = this.getAddressesByMCID(mcid);
-				for (String address : addresses) {
-					List<String> alts = this.getAltsByHostAddress(address);
+				JsonArray addresses = this.getAddressesByMCID(mcid);
+				for (JsonElement address : addresses) {
+					List<String> alts = this.getAltsByHostAddress(address.getAsString());
 					for (String alt : alts) {
 						if (!mcids.contains(alt)) {
 							mcids.add(alt);
@@ -142,20 +199,20 @@ public class AltChecker {
 		return mcids;
 	}
 
-	public List<String> getAddressesByMCID(String mcid) {
+	public JsonArray getAddressesByMCID(String mcid) {
 		UUID uuid = this.getUUIDByMCID(mcid);
 		if (uuid == null) {
 			return null;
 		}
-		return this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses");
+		return this.instance.getAltsConfig().get(uuid + ".ip.hostaddresses").getAsJsonArray();
 	}
 
-	public List<String> getHostNamesByMCID(String mcid) {
+	public JsonArray getHostNamesByMCID(String mcid) {
 		UUID uuid = this.getUUIDByMCID(mcid);
 		if (uuid == null) {
 			return null;
 		}
-		return this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames");
+		return this.instance.getAltsConfig().get(uuid + ".ip.hostnames").getAsJsonArray();
 	}
 
 	public UUID getUUIDByMCID(String mcid) {

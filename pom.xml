@@ -4,7 +4,7 @@
 
   <groupId>net.simplyrin.accountinfo</groupId>
   <artifactId>AccountInfo</artifactId>
-  <version>1.5.3</version>
+  <version>1.6</version>
   <packaging>jar</packaging>
 
   <name>AccountInfo</name>
@@ -15,6 +15,29 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
   <repositories>
     <repository>
@@ -24,6 +47,10 @@
     <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
+    </repository>
+    <repository>
+      <id>net.simplyrin</id>
+      <url>https://api.simplyrin.net/maven/</url>
     </repository>
   </repositories>
 

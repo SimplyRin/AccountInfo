@@ -44,8 +44,8 @@ public class OfflinePlayer implements Listener {
 
 	public CachedPlayer getOfflinePlayer(String name) {
 		try {
-			UUID uniqueId = UUID.fromString(this.instance.getPlayerConfig().getString("player." + name.toLowerCase(), null));
-			String pn = this.instance.getPlayerConfig().getString("uuid." + uniqueId.toString());
+			UUID uniqueId = UUID.fromString(this.instance.getPlayerConfig().get("player." + name.toLowerCase()).getAsString());
+			String pn = this.instance.getPlayerConfig().get("uuid." + uniqueId.toString()).getAsString();
 
 			return new CachedPlayer(uniqueId, pn);
 		} catch (Exception e) {
@@ -55,7 +55,7 @@ public class OfflinePlayer implements Listener {
 	}
 
 	public CachedPlayer getOfflinePlayer(UUID uniqueId) {
-		String pn = this.instance.getPlayerConfig().getString("uuid." + uniqueId.toString(), null);
+		String pn = this.instance.getPlayerConfig().get("uuid." + uniqueId.toString()).getAsString();
 		if (pn != null) {
 			return new CachedPlayer(uniqueId, pn);
 		}

@@ -4,14 +4,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import litebans.api.Database;
 import lombok.var;
@@ -22,7 +23,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.plugin.Command;
 import net.simplyrin.accountinfo.AccountInfo;
-import net.simplyrin.accountinfo.kokuminipchecker.IpData;
+import net.simplyrin.accountinfo.kokuminipchecker.AddressInfo;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
 
 /**
@@ -63,23 +64,6 @@ public class CommandAccountInfo extends Command {
 		}
 
 		if (args.length > 0) {
-			if (args[0].equalsIgnoreCase("-convert") && sender.hasPermission("accountinfo.admin")) {
-				this.instance.info(sender, "§7player.yml のプレイヤーキーを正しく修正しています...。");
-				
-				var map = new HashMap<String, String>();
-				for (String key : this.instance.getPlayerConfig().getSection("player").getKeys()) {
-					map.put(key, this.instance.getPlayerConfig().getString("player." + key));
-				}
-				
-				for (Entry<String, String> entry : map.entrySet()) {
-					this.instance.getPlayerConfig().set("player." + entry.getKey(), null);
-					this.instance.getPlayerConfig().set("player." + entry.getKey().toLowerCase(), entry.getValue());
-				}
-				
-				this.instance.info(sender, "§aplayer.yml のプレイヤーキーを正しく修正しました。");
-				return;
-			}
-			
 			if (args[0].equalsIgnoreCase("-reload")) {
 				this.instance.reloadConfig();
 				
@@ -119,7 +103,7 @@ public class CommandAccountInfo extends Command {
 						alts_.add(this.instance.getAltChecker().getMCIDbyUUID(uuid));
 					}
 
-					Set<String> addresses_ = this.instance.getAltCheckTest().getIPs(op.getUniqueId());
+					JsonArray addresses_ = this.instance.getAltCheckTest().getIPs(op.getUniqueId());
 
 					List<TextComponent> alts = new ArrayList<>();
 					List<TextComponent> addresses = new ArrayList<>();
@@ -167,7 +151,8 @@ public class CommandAccountInfo extends Command {
 							alts.add(base);
 						}
 					}
-					for (String address : addresses_) {
+					for (JsonElement _address : addresses_) {
+						String address = _address.getAsString();
 						
 						TextComponent textComponent = null;
 						var tag = "";
@@ -395,11 +380,11 @@ public class CommandAccountInfo extends Command {
 		}
 	}
 	
-	public String getTagAndCountry(IpData ipData) {
+	public String getTagAndCountry(AddressInfo ipData) {
 		return this.getTagAndCountry(ipData, false);
 	}
 	
-	public String getTagAndCountry(IpData ipData, boolean _long) {
+	public String getTagAndCountry(AddressInfo ipData, boolean _long) {
 		String tag = "";
 		if (ipData.getMobile()) {
 			tag = "§9[M" + (_long ? "OBILE" : "") + "] ";
@@ -416,7 +401,7 @@ public class CommandAccountInfo extends Command {
 		return tag;
 	}
 	
-	public String getAddressType(IpData ipData) {
+	public String getAddressType(AddressInfo ipData) {
 		String tag = "";
 		if (ipData.getMobile()) {
 			tag = "§9[MOBILE] キャリア/モバイル回線";
@@ -431,7 +416,7 @@ public class CommandAccountInfo extends Command {
 		return tag;
 	}
 	
-	public String getAddressHoverJson(IpData ipData) {
+	public String getAddressHoverJson(AddressInfo ipData) {
 		return "§8- §e検索 IP§f: §a" + ipData.getQuery() + "\n"
 				+ "§8- §e地域§f: §a" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\n"
 				+ "§8- §e国§f: §a" + ipData.getCountryCode() + " (" + ipData.getCountry() + ")\n"

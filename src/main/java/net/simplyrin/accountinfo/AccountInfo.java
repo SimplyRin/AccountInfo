@@ -3,11 +3,13 @@ package net.simplyrin.accountinfo;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import lombok.Getter;
 import lombok.var;
@@ -16,9 +18,8 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.config.Configuration;
 import net.simplyrin.accountinfo.command.CommandAccountInfo;
-import net.simplyrin.accountinfo.config.Config;
+import net.simplyrin.accountinfo.json.JsonManager;
 import net.simplyrin.accountinfo.kokuminipchecker.KokuminIPChecker;
 import net.simplyrin.accountinfo.listeners.OfflinePlayer;
 import net.simplyrin.accountinfo.utils.AltCheckTest;
@@ -66,10 +67,10 @@ public class AccountInfo extends Plugin {
 	private File playerYmlFile;
 	private File addressYmlFile;
 	
-	private Configuration config;
-	private Configuration altsConfig;
-	private Configuration playerConfig;
-	private Configuration addressConfig;
+	private JsonObject config;
+	private JsonObject altsConfig;
+	private JsonObject playerConfig;
+	private JsonObject addressConfig;
 
 	private boolean liteBansBridge;
 	
@@ -81,7 +82,7 @@ public class AccountInfo extends Plugin {
 		
 		this.reloadConfig();
 
-		this.altsYmlFile = new File(this.getDataFolder(), "alts.yml");
+		this.altsYmlFile = new File(this.getDataFolder(), "alts.json");
 		if (!this.altsYmlFile.exists()) {
 			try {
 				this.altsYmlFile.createNewFile();
@@ -89,9 +90,9 @@ public class AccountInfo extends Plugin {
 				e.printStackTrace();
 			}
 		}
-		this.altsConfig = Config.getConfig(this.altsYmlFile);
+		this.altsConfig = JsonManager.getJson(this.altsYmlFile);
 
-		this.playerYmlFile = new File(this.getDataFolder(), "player.yml");
+		this.playerYmlFile = new File(this.getDataFolder(), "player.json");
 		if (!this.playerYmlFile.exists()) {
 			try {
 				this.playerYmlFile.createNewFile();
@@ -99,9 +100,9 @@ public class AccountInfo extends Plugin {
 				e.printStackTrace();
 			}
 		}
-		this.playerConfig = Config.getConfig(this.playerYmlFile);
+		this.playerConfig = JsonManager.getJson(this.playerYmlFile);
 		
-		this.addressYmlFile = new File(this.getDataFolder(), "address.yml");
+		this.addressYmlFile = new File(this.getDataFolder(), "address.json");
 		if (!this.addressYmlFile.exists()) {
 			try {
 				this.addressYmlFile.createNewFile();
@@ -109,7 +110,7 @@ public class AccountInfo extends Plugin {
 				e.printStackTrace();
 			}
 		}
-		this.addressConfig = Config.getConfig(this.addressYmlFile);
+		this.addressConfig = JsonManager.getJson(this.addressYmlFile);
 		
 		this.checkUniqueIds = new ArrayList<>();
 
@@ -118,42 +119,49 @@ public class AccountInfo extends Plugin {
 
 		this.liteBansBridge = this.getProxy().getPluginManager().getPlugin("LiteBans") != null;
 
-		if (this.config.getBoolean("Enable-IP-Check")) {
+		if (this.config.get("Enable-IP-Check").getAsBoolean()) {
 			this.kokuminIPChecker = new KokuminIPChecker(this);
 			
-			if (this.config.getBoolean("Print-Debug")) {
+			if (this.config.get("Print-Debug").getAsBoolean()) {
 				this.kokuminIPChecker.setPrintDebug(true);
 			}
 		}
 		
 		// 1.4.5
-		if (this.config.getString("TimeZone", null) == null) {
-			this.config.set("TimeZone", "Asia/Tokyo");
+		if (!this.config.has("TimeZone")) {
+			this.config.addProperty("TimeZone", "Asia/Tokyo");
 			
 			this.saveConfig();
 		}
 		
-		if (this.config.getString("SdfFormat", null) == null) {
-			this.config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
+		if (!this.config.has("SdfFormat")) {
+			this.config.addProperty("SdfFormat", "yyyy/MM/dd HH:mm:ss");
 			
 			this.saveConfig();
 		}
 		
 		// 1.5.2
-		if (this.config.getStringList("Custom-Command").size() == 0) {
-			this.config.set("Custom-Command", Arrays.asList("gaccinfo", "gaccountinfo"));
+		if (!this.config.has("Custom-Command")) {
+			JsonArray array = new JsonArray();
+			array.add("gaccinfo");
+			array.add("gaccountinfo");
+			
+			this.config.add("Custom-Command", array);
 			
 			this.saveConfig();
 		}
 		
-		for (String command : this.config.getStringList("Custom-Command")) {
-			this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this, command));
+		var customCommand = this.config.get("Custom-Command").getAsJsonArray();
+		for (int i = 0; i < customCommand.size(); i++) {
+			String value = customCommand.get(i).getAsString();
+			
+			this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this, value));
 		}
 
 		this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
 
-		this.timeZone = TimeZone.getTimeZone(this.config.getString("TimeZone"));
-		this.sdfFormat = this.config.getString("SdfFormat");
+		this.timeZone = TimeZone.getTimeZone(this.config.get("TimeZone").getAsString());
+		this.sdfFormat = this.config.get("SdfFormat").getAsString();
 		
 		// 確認タスク
 		this.getProxy().getScheduler().schedule(this, () -> {
@@ -161,26 +169,28 @@ public class AccountInfo extends Plugin {
 			list.addAll(this.checkUniqueIds);
 			this.checkUniqueIds.clear();
 			
+			this.getLogger().info("checking");
+			
 			for (UUID uniqueId : list) {
 				var player = this.getProxy().getPlayer(uniqueId);
 				if (player != null) {
 					this.getAltChecker().put(player);
 				}
 			}
-		}, 0, 1, TimeUnit.MINUTES);
+		}, 0, 30, TimeUnit.SECONDS);
 	}
 
 	@Override
 	public void onDisable() {
-		this.getProxy().getScheduler().cancel(this);
-		
 		this.saveAltsConfig();
 		this.savePlayerConfig();
 		this.saveAddressConfig();
+		
+		this.getProxy().getScheduler().cancel(this);
 	}
 	
 	public void reloadConfig() {
-		this.configFile = new File(this.getDataFolder(), "config.yml");
+		this.configFile = new File(this.getDataFolder(), "config.json");
 		if (!this.configFile.exists()) {
 			try {
 				this.configFile.createNewFile();
@@ -188,34 +198,39 @@ public class AccountInfo extends Plugin {
 				e.printStackTrace();
 			}
 			
-			Configuration config = Config.getConfig(this.configFile);
+			JsonObject config = new JsonObject();
 			
-			config.set("Enable-IP-Check", false);
-			config.set("Print-Debug", false);
-			config.set("Cache", 14);
-			config.set("TimeZone", "Asia/Tokyo");
-			config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
-			config.set("Custom-Command", Arrays.asList("gaccinfo", "gaccountinfo"));
+			config.addProperty("Enable-IP-Check", false);
+			config.addProperty("Print-Debug", false);
+			config.addProperty("Cache", 14);
+			config.addProperty("TimeZone", "Asia/Tokyo");
+			config.addProperty("SdfFormat", "yyyy/MM/dd HH:mm:ss");
 			
-			Config.saveConfig(config, this.configFile);
+			JsonArray array = new JsonArray();
+			array.add("gaccinfo");
+			array.add("gaccountinfo");
+			
+			config.add("Custom-Command", array);
+			
+			JsonManager.saveJson(config, this.configFile);
 		}
-		this.config = Config.getConfig(this.configFile);
+		this.config = JsonManager.getJson(this.configFile);
 	}
 	
 	public void saveConfig() {
-		Config.saveConfig(this.config, this.configFile);
+		JsonManager.saveJson(this.config, this.configFile);
 	}
 	
 	public void saveAltsConfig() {
-		Config.saveConfig(this.altsConfig, this.altsYmlFile);
+		JsonManager.saveJson(this.altsConfig, this.altsYmlFile);
 	}
 	
 	public void savePlayerConfig() {
-		Config.saveConfig(this.playerConfig, this.playerYmlFile);
+		JsonManager.saveJson(this.playerConfig, this.playerYmlFile);
 	}
 	
 	public void saveAddressConfig() {
-		Config.saveConfig(this.addressConfig, this.addressYmlFile);
+		JsonManager.saveJson(this.addressConfig, this.addressYmlFile);
 	}
 
 	@SuppressWarnings("deprecation")

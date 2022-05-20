@@ -29,7 +29,7 @@ import lombok.Getter;
  * SOFTWARE.
  */
 @Getter
-public class IpData {
+public class AddressInfo {
 
 	@SerializedName("status") @Expose
 	private String status;

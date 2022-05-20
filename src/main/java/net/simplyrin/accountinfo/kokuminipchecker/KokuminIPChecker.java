@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.commonsio.IOUtils;
-import net.simplyrin.accountinfo.config.Config;
+import net.simplyrin.accountinfo.json.JsonManager;
 
 /**
  * Created by SimplyRin on 2021/01/17.
@@ -80,14 +80,14 @@ public class KokuminIPChecker {
 			return this.getNullData();
 		}
 
-		if (this.instance.getAddressConfig() != null && this.instance.getAddressConfig().getString(ip + ".JSON", null) != null) {
-			long expires = this.instance.getAddressConfig().getLong(ip + ".EXPIRES");
+		if (this.instance.getAddressConfig() != null && this.instance.getAddressConfig().has(ip + ".JSON")) {
+			long expires = this.instance.getAddressConfig().get(ip + ".EXPIRES").getAsLong();
 			long now = new Date().getTime();
 
 			// 有効期限が失効していない場合
 			if (expires >= now) {
-				JsonElement json = new JsonParser().parse(this.instance.getAddressConfig().getString(ip + ".JSON"));
-				return new RequestData(this.gson.fromJson(json, IpData.class), true);
+				JsonElement json = new JsonParser().parse(this.instance.getAddressConfig().get(ip + ".JSON").getAsString());
+				return new RequestData(this.gson.fromJson(json, AddressInfo.class), true);
 			} else {
 				this.println("[CACHE EXPIRES] " + ip);
 			}
@@ -116,20 +116,20 @@ public class KokuminIPChecker {
 					JsonObject jsonObject = json.getAsJsonObject();
 
 					if (jsonObject.has("status") && jsonObject.get("status").getAsString().equals("success")) {
-						this.instance.getAddressConfig().set(ip + ".JSON", json.toString());
+						this.instance.getAddressConfig().addProperty(ip + ".JSON", json.toString());
 
 						// キャッシュ設定
 						Calendar calendar = Calendar.getInstance();
-						calendar.add(Calendar.DATE, this.instance.getConfig().getInt("Cache", 14));
-						this.instance.getAddressConfig().set(ip + ".EXPIRES", calendar.getTime().getTime());
+						calendar.add(Calendar.DATE, this.instance.getConfig().has("Cache") ? this.instance.getConfig().get("Cache").getAsInt() : 14);
+						this.instance.getAddressConfig().addProperty(ip + ".EXPIRES", calendar.getTime().getTime());
 
-						IpData data = this.gson.fromJson(json, IpData.class);
+						AddressInfo data = this.gson.fromJson(json, AddressInfo.class);
 						this.println("[DONE] Query: " + ip
 								+ ", isMobile: " + data.getMobile()
 								+ ", isProxy: " + data.getProxy()
 								+ ", isHosting: " + data.getHosting());
 
-						Config.saveConfig(this.instance.getAddressConfig(), this.instance.getAddressYmlFile());
+						JsonManager.saveJson(this.instance.getAddressConfig(), this.instance.getAddressYmlFile());
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -159,7 +159,7 @@ public class KokuminIPChecker {
 
 	@Getter @AllArgsConstructor
 	public class RequestData {
-		private IpData ipData;
+		private AddressInfo ipData;
 		private boolean cached;
 	}
 

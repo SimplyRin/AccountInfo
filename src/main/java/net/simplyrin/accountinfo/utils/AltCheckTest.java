@@ -1,10 +1,15 @@
 package net.simplyrin.accountinfo.utils;
 
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import net.simplyrin.accountinfo.AccountInfo;
 
 /**
@@ -32,26 +37,40 @@ public class AltCheckTest {
 
 	public Set<UUID> getAltsByUUID(UUID uuid) {
 		Set<UUID> alts = new HashSet<>();
-		Set<String> ips = this.getIPs(uuid);
+		JsonArray ips = this.getIPs(uuid);
 		alts.add(uuid);
-		for (String ip : ips) {
-			alts.addAll(this.getAltsByIP(ip));
+		for (JsonElement ip : ips) {
+			alts.addAll(this.getAltsByIP(ip.getAsString()));
 		}
 		return alts;
 	}
 
-	public Set<String> getIPs(UUID uuid) {
-		Set<String> ips = new HashSet<>();
-		ips.addAll(this.instance.getAltsConfig().getStringList(uuid.toString() + ".ip.hostnames"));
-		ips.addAll(this.instance.getAltsConfig().getStringList(uuid.toString() + ".ip.hostaddresses"));
+	public JsonArray getIPs(UUID uuid) {
+		JsonArray ips = new JsonArray();
+		ips.addAll(this.instance.getAltsConfig().get(uuid.toString() + ".ip.hostnames").getAsJsonArray());
+		ips.addAll(this.instance.getAltsConfig().get(uuid.toString() + ".ip.hostaddresses").getAsJsonArray());
 		return ips;
 	}
 
 	public Set<UUID> getAltsByIP(String ip) {
 		Set<UUID> alts = new HashSet<>();
-		for (String uuidString : this.instance.getAltsConfig().getKeys()) {
-			UUID uuid = UUID.fromString(uuidString);
-			if (this.getIPs(uuid).contains(ip)) {
+		for (Entry<String, JsonElement> entry : this.instance.getAltsConfig().entrySet()) {
+			String key = entry.getKey().split("[.]")[0];
+			
+			UUID uuid = UUID.fromString(key);
+			
+			var ips = this.getIPs(uuid);
+			
+			boolean contains = false;
+			for (var js : ips) {
+				var str = js.getAsString();
+				
+				if (str.equalsIgnoreCase(ip)) {
+					contains = true;
+				}
+			}
+			
+			if (contains) {
 				alts.add(uuid);
 			}
 		}
@@ -59,15 +78,19 @@ public class AltCheckTest {
 	}
 
 	public String getMCIDbyUUID(UUID uuid) {
-		return this.instance.getPlayerConfig().getString("uuid." + uuid.toString(), null);
+		return this.instance.getPlayerConfig().get("uuid." + uuid.toString()).getAsString();
 	}
 	
 	public String getLastHostAddress(UUID uuid) {
-		return this.instance.getAltsConfig().getString(uuid.toString() + ".ip.last-hostaddress", null);
+		return this.instance.getAltsConfig().get(uuid.toString() + ".ip.last-hostaddress").getAsString();
 	}
 	
 	public long getLastLogin(UUID uuid) {
-		return this.instance.getAltsConfig().getLong(uuid.toString() + ".ip.last-login", 0);
+		try {
+			return this.instance.getAltsConfig().get(uuid.toString() + ".ip.last-login").getAsLong();
+		} catch (Exception e) {
+		}
+		return 0;
 	}
 
 }
