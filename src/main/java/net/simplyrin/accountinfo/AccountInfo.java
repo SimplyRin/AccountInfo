@@ -79,26 +79,7 @@ public class AccountInfo extends Plugin {
 	public void onEnable() {
 		this.getDataFolder().mkdirs();
 		
-		this.configFile = new File(this.getDataFolder(), "config.yml");
-		if (!this.configFile.exists()) {
-			try {
-				this.configFile.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			Configuration config = Config.getConfig(this.configFile);
-			
-			config.set("Enable-IP-Check", false);
-			config.set("Print-Debug", false);
-			config.set("Cache", 14);
-			config.set("TimeZone", "Asia/Tokyo");
-			config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
-			config.set("Custom-Command", Arrays.asList("gaccinfo", "gaccountinfo"));
-			
-			Config.saveConfig(config, this.configFile);
-		}
-		this.config = Config.getConfig(this.configFile);
+		this.reloadConfig();
 
 		this.altsYmlFile = new File(this.getDataFolder(), "alts.yml");
 		if (!this.altsYmlFile.exists()) {
@@ -196,6 +177,29 @@ public class AccountInfo extends Plugin {
 		this.saveAltsConfig();
 		this.savePlayerConfig();
 		this.saveAddressConfig();
+	}
+	
+	public void reloadConfig() {
+		this.configFile = new File(this.getDataFolder(), "config.yml");
+		if (!this.configFile.exists()) {
+			try {
+				this.configFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			Configuration config = Config.getConfig(this.configFile);
+			
+			config.set("Enable-IP-Check", false);
+			config.set("Print-Debug", false);
+			config.set("Cache", 14);
+			config.set("TimeZone", "Asia/Tokyo");
+			config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
+			config.set("Custom-Command", Arrays.asList("gaccinfo", "gaccountinfo"));
+			
+			Config.saveConfig(config, this.configFile);
+		}
+		this.config = Config.getConfig(this.configFile);
 	}
 	
 	public void saveConfig() {

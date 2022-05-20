@@ -79,6 +79,13 @@ public class CommandAccountInfo extends Command {
 				this.instance.info(sender, "§aplayer.yml のプレイヤーキーを正しく修正しました。");
 				return;
 			}
+			
+			if (args[0].equalsIgnoreCase("-reload")) {
+				this.instance.reloadConfig();
+				
+				this.instance.info(sender, "§aconfig.yml を再読み込みしました。");
+				return;
+			}
 
 			this.instance.getProxy().getScheduler().runAsync(this.instance, () -> {
 				CachedPlayer op = null;
@@ -362,7 +369,7 @@ public class CommandAccountInfo extends Command {
 			return;
 		}
 
-		this.instance.info(sender, "§c/" + this.command + " <player>");
+		this.instance.info(sender, "§c/" + this.command + " <player|-reload>");
 		return;
 	}
 	
