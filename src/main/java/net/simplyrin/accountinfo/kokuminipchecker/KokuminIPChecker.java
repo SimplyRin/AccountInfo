@@ -86,6 +86,7 @@ public class KokuminIPChecker {
 
 			// 有効期限が失効していない場合
 			if (expires >= now) {
+				this.println("[CACHE FOUND] " + ip);
 				JsonElement json = new JsonParser().parse(this.instance.getAddressConfig().getString(ip + ".JSON"));
 				return new RequestData(this.gson.fromJson(json, IpData.class), true);
 			} else {

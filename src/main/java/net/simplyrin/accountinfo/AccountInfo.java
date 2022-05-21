@@ -2,15 +2,10 @@ package net.simplyrin.accountinfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.TimeZone;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
-import lombok.var;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -73,8 +68,6 @@ public class AccountInfo extends Plugin {
 
 	private boolean liteBansBridge;
 	
-	private List<UUID> checkUniqueIds;
-
 	@Override
 	public void onEnable() {
 		this.getDataFolder().mkdirs();
@@ -110,8 +103,6 @@ public class AccountInfo extends Plugin {
 			}
 		}
 		this.addressConfig = Config.getConfig(this.addressYmlFile);
-		
-		this.checkUniqueIds = new ArrayList<>();
 
 		this.altChecker = new AltChecker(this);
 		this.altCheckTest = new AltCheckTest(this);
@@ -154,20 +145,6 @@ public class AccountInfo extends Plugin {
 
 		this.timeZone = TimeZone.getTimeZone(this.config.getString("TimeZone"));
 		this.sdfFormat = this.config.getString("SdfFormat");
-		
-		// 確認タスク
-		this.getProxy().getScheduler().schedule(this, () -> {
-			List<UUID> list = new ArrayList<>();
-			list.addAll(this.checkUniqueIds);
-			this.checkUniqueIds.clear();
-			
-			for (UUID uniqueId : list) {
-				var player = this.getProxy().getPlayer(uniqueId);
-				if (player != null) {
-					this.getAltChecker().put(player);
-				}
-			}
-		}, 0, 1, TimeUnit.MINUTES);
 	}
 
 	@Override

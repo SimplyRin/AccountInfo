@@ -1,13 +1,15 @@
 package net.simplyrin.accountinfo.utils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+import lombok.var;
 import net.simplyrin.accountinfo.AccountInfo;
+import net.simplyrin.accountinfo.kokuminipchecker.PlayerData;
 
 /**
  * Created by natyu192.
@@ -33,51 +35,36 @@ public class AltChecker {
 
 	private final AccountInfo instance;
 
-	public void put(ProxiedPlayer p) {
-		String playerName = p.getName();
-		String uuid = p.getUniqueId().toString();
-		String hostname = p.getAddress().getHostName();
-		String hostaddress = p.getAddress().getAddress().getHostAddress();
-
-		this.put(playerName, uuid, hostname, hostaddress);
+	public void put(PlayerData p) {
+		this.put(p.getName(), p.getUniqueId().toString(),  p.getHostAddress());
 	}
 
-	public void put(String playerName, String uuid, String hostname, String hostaddress) {
-		this.instance.getPlayerConfig().set("player." + playerName.toLowerCase(), uuid);
-		this.instance.getPlayerConfig().set("uuid." + uuid, playerName);
+	public void put(String playerName, String uuid, String hostaddress) {
+		var playerConfig = this.instance.getPlayerConfig();
 		
-		this.instance.getAltsConfig().set(uuid + ".mcid", playerName);
-		this.instance.getAltsConfig().set(uuid + ".ip.last-hostname", hostname);
-		this.instance.getAltsConfig().set(uuid + ".ip.last-hostaddress", hostaddress);
-		this.instance.getAltsConfig().set(uuid + ".ip.last-login", System.currentTimeMillis());
+		playerConfig.set("player." + playerName.toLowerCase(), uuid);
+		playerConfig.set("uuid." + uuid, playerName);
+		
+		var altsConfig = this.instance.getAltsConfig();
+		
+		altsConfig.set(uuid + ".mcid", playerName);
+		altsConfig.set(uuid + ".ip.last-hostaddress", hostaddress);
+		altsConfig.set(uuid + ".ip.last-login", new Date().getTime());
 
-		List<String> hostnames = new ArrayList<String>();
 		List<String> hostaddresses = new ArrayList<String>();
 
-		if (!this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames").isEmpty()) {
-			hostnames = this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames");
-			if (!hostnames.contains(hostname)) {
-				hostnames.add(hostname);
-				this.instance.getAltsConfig().set(uuid + ".ip.hostnames", hostnames);
-			}
-		} else {
-			hostnames.add(hostname);
-			this.instance.getAltsConfig().set(uuid + ".ip.hostnames", hostnames);
-		}
-
-		if (!this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses").isEmpty()) {
-			hostaddresses = this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses");
+		if (!altsConfig.getStringList(uuid + ".ip.hostaddresses").isEmpty()) {
+			hostaddresses = altsConfig.getStringList(uuid + ".ip.hostaddresses");
 			if (!hostaddresses.contains(hostaddress)) {
 				hostaddresses.add(hostaddress);
-				this.instance.getAltsConfig().set(uuid + ".ip.hostaddresses", hostaddresses);
+				altsConfig.set(uuid + ".ip.hostaddresses", hostaddresses);
 			}
 		} else {
 			hostaddresses.add(hostaddress);
-			this.instance.getAltsConfig().set(uuid + ".ip.hostaddresses", hostaddresses);
+			altsConfig.set(uuid + ".ip.hostaddresses", hostaddresses);
 		}
-		
+
 		if (this.instance.getKokuminIPChecker() != null) {
-			this.instance.getKokuminIPChecker().get(hostname);
 			this.instance.getKokuminIPChecker().get(hostaddress);
 		}
 	}

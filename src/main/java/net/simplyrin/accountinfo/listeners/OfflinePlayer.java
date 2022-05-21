@@ -1,12 +1,15 @@
 package net.simplyrin.accountinfo.listeners;
 
+import java.net.InetSocketAddress;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.simplyrin.accountinfo.AccountInfo;
+import net.simplyrin.accountinfo.kokuminipchecker.PlayerData;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
 
 /**
@@ -39,7 +42,12 @@ public class OfflinePlayer implements Listener {
 
 	@EventHandler
 	public void onServerSwitch(PostLoginEvent event) {
-		this.instance.getCheckUniqueIds().add(event.getPlayer().getUniqueId());
+		var player = event.getPlayer();
+		var address = (InetSocketAddress) player.getSocketAddress();
+				
+		var pd = new PlayerData(player.getName(), player.getUniqueId(), address.getAddress().getHostAddress());
+		
+		this.instance.getAltChecker().put(pd);
 	}
 
 	public CachedPlayer getOfflinePlayer(String name) {
