@@ -14,8 +14,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <version.template.file>java/Version.template</version.template.file>
-    <version.file>src/main/java/net/simplyrin/accountinfo/utils/Version.java</version.file>
   </properties>
   
   <build>
@@ -25,35 +23,6 @@
         <filtering>true</filtering>
       </resource>
     </resources>
-    <plugins>
-      <plugin>
-        <groupId>com.google.code.maven-replacer-plugin</groupId>
-        <artifactId>maven-replacer-plugin</artifactId>
-        <version>1.4.1</version>
-        <executions>
-          <execution>
-            <phase>process-sources</phase>
-            <goals>
-              <goal>replace</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <file>${version.template.file}</file>
-          <outputFile>${version.file}</outputFile>
-          <replacements>
-            <replacement>
-              <token>@commitId@</token>
-              <value>${SHA}</value>
-            </replacement>
-            <replacement>
-              <token>@jenkinsBuildNumber@</token>
-              <value>${build.number}</value>
-            </replacement>
-          </replacements>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 
   <repositories>
