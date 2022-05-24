@@ -82,10 +82,17 @@
       <version>0.3.4</version>
       <scope>provided</scope>
     </dependency>
+    
     <dependency>
       <groupId>net.simplyrin.pluginupdater</groupId>
       <artifactId>PluginUpdater</artifactId>
       <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.29</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>
