@@ -18,6 +18,8 @@ import net.simplyrin.accountinfo.kokuminipchecker.KokuminIPChecker;
 import net.simplyrin.accountinfo.listeners.OfflinePlayer;
 import net.simplyrin.accountinfo.utils.AltCheckTest;
 import net.simplyrin.accountinfo.utils.AltChecker;
+import net.simplyrin.pluginupdater.ConfigData;
+import net.simplyrin.pluginupdater.PluginUpdater;
 
 /**
  * Created by SimplyRin on 2021/10/25.
@@ -145,6 +147,9 @@ public class AccountInfo extends Plugin {
 
 		this.timeZone = TimeZone.getTimeZone(this.config.getString("TimeZone"));
 		this.sdfFormat = this.config.getString("SdfFormat");
+		
+		new PluginUpdater().initBungee(this, new ConfigData(true, "https://ci.simplyrin.net/job/AccountInfo/", 
+				"./plugins/" + this.getDescription().getName() + "/.old-files", false, null, null));
 	}
 
 	@Override
