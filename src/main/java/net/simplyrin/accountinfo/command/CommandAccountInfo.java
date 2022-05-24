@@ -86,6 +86,13 @@ public class CommandAccountInfo extends Command {
 				this.instance.info(sender, "§aconfig.yml を再読み込みしました。");
 				return;
 			}
+			
+			if (args[0].equalsIgnoreCase("-version")) {
+				var description = this.instance.getDescription();
+				
+				this.instance.info(sender, "§a" + description.getName() + " §fversion §a" + description.getVersion());
+				return;
+			}
 
 			this.instance.getProxy().getScheduler().runAsync(this.instance, () -> {
 				CachedPlayer op = null;
