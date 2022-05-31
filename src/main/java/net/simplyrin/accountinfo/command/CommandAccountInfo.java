@@ -90,7 +90,27 @@ public class CommandAccountInfo extends Command {
 			if (args[0].equalsIgnoreCase("-version")) {
 				var description = this.instance.getDescription();
 				
-				this.instance.info(sender, "§a" + description.getName() + " §fversion §a" + description.getVersion());
+				this.instance.info(sender, "§a" + description.getName() + " §fバージョン §a" + description.getVersion());
+				
+				this.instance.getProxy().getScheduler().runAsync(this.instance, () -> {
+					this.instance.info(sender, "§7プラグインのアップデートを確認しています...");
+					
+					var updater = this.instance.getPluginUpdater();
+					var updateInfo = updater.checkUpdate();
+					
+					if (updateInfo.isUpdateAvailable()) {
+						this.instance.info(sender, "§eプラグインのアップデートがあります。");
+						this.instance.info(sender, "§e最新のバージョン: v" + updateInfo.getLatestBuild());
+						
+						var url = updateInfo.getProjectUrl();
+						if (url != null) {
+							this.instance.info(sender, "§e" + url);
+						}
+						
+					} else {
+						this.instance.info(sender, "§a最新の " + this.instance.getDescription().getName() + " を使用しています。");
+					}
+				});
 				return;
 			}
 
@@ -376,7 +396,7 @@ public class CommandAccountInfo extends Command {
 			return;
 		}
 
-		this.instance.info(sender, "§c/" + this.command + " <player|-reload>");
+		this.instance.info(sender, "§c/" + this.command + " <player|-reload|-version>");
 		return;
 	}
 	
