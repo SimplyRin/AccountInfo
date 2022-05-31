@@ -70,6 +70,8 @@ public class AccountInfo extends Plugin {
 
 	private boolean liteBansBridge;
 	
+	private PluginUpdater pluginUpdater;
+	
 	@Override
 	public void onEnable() {
 		this.getDataFolder().mkdirs();
@@ -148,7 +150,7 @@ public class AccountInfo extends Plugin {
 		this.timeZone = TimeZone.getTimeZone(this.config.getString("TimeZone"));
 		this.sdfFormat = this.config.getString("SdfFormat");
 		
-		new PluginUpdater().initBungee(this, new ConfigData(true, "https://ci.simplyrin.net/job/AccountInfo/", 
+		this.pluginUpdater = new PluginUpdater().initBungee(this, new ConfigData(true, "https://ci.simplyrin.net/job/AccountInfo/", 
 				"./plugins/" + this.getDescription().getName() + "/.old-files", false, null, null));
 	}
 
