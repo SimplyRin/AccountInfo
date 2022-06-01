@@ -261,8 +261,8 @@ public class CommandAccountInfo extends Command {
 
 					// サブアカウント一覧
 					
-					if (alts.size() >= 7) {
-						var split = this.divide(alts, 6);
+					if (alts.size() >= 8) {
+						var split = this.divide(alts, 7);
 						
 						var maxPage = split.size();
 						
@@ -324,8 +324,8 @@ public class CommandAccountInfo extends Command {
 					
 					// IP 一覧
 
-					if (addresses.size() >= 7) {
-						var split = this.divide(addresses, 6);
+					if (addresses.size() >= 8) {
+						var split = this.divide(addresses, 7);
 						
 						var maxPage = split.size();
 						
@@ -383,11 +383,6 @@ public class CommandAccountInfo extends Command {
 						for (TextComponent address : addresses) {
 							this.instance.info(sender, address);
 						}
-					}
-					
-					if (this.instance.getKokuminIPChecker() != null) {
-						this.instance.info(sender, "§b---------- Address 色情報 ----------");
-						this.instance.info(sender, "§a[N]通常§7, §9[M]モバイル回線§7, §6[V]VPS§7, §c[P]Proxy/VPN§7, [?]検索中");
 					}
 				} else {
 					this.instance.info(sender, "§c" + args[0] + "はログインしたことがありません");
