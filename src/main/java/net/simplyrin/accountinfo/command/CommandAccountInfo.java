@@ -22,6 +22,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.kokuminipchecker.IpData;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
@@ -44,7 +45,7 @@ import net.simplyrin.accountinfo.utils.CachedPlayer;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class CommandAccountInfo extends Command {
+public class CommandAccountInfo extends Command implements TabExecutor {
 
 	private AccountInfo instance;
 	private String command;
@@ -54,6 +55,22 @@ public class CommandAccountInfo extends Command {
 
 		this.instance = instance;
 		this.command = command;
+	}
+	
+	@Override
+	public List<String> onTabComplete(CommandSender sender, String[] args) {
+		var list = new ArrayList<String>();
+		
+		if (args.length == 1) {
+			list.add("-reload");
+			list.add("-version");
+			
+			for (var player : this.instance.getProxy().getPlayers()) {
+				list.add(player.getName());
+			}
+		}
+		
+		return list;
 	}
 
 	@Override
