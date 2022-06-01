@@ -20,6 +20,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.kokuminipchecker.IpData;
@@ -261,7 +262,7 @@ public class CommandAccountInfo extends Command {
 
 					// サブアカウント一覧
 					
-					if (alts.size() >= 8) {
+					if (alts.size() >= 8 && sender instanceof ProxiedPlayer) {
 						var split = this.divide(alts, 7);
 						
 						var maxPage = split.size();
@@ -324,7 +325,7 @@ public class CommandAccountInfo extends Command {
 					
 					// IP 一覧
 
-					if (addresses.size() >= 8) {
+					if (addresses.size() >= 8 && sender instanceof ProxiedPlayer) {
 						var split = this.divide(addresses, 7);
 						
 						var maxPage = split.size();
