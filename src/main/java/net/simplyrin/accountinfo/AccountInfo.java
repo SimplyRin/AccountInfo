@@ -112,14 +112,6 @@ public class AccountInfo extends Plugin {
 		this.altCheckTest = new AltCheckTest(this);
 
 		this.liteBansBridge = this.getProxy().getPluginManager().getPlugin("LiteBans") != null;
-
-		if (this.config.getBoolean("Enable-IP-Check")) {
-			this.kokuminIPChecker = new KokuminIPChecker(this);
-			
-			if (this.config.getBoolean("Print-Debug")) {
-				this.kokuminIPChecker.setPrintDebug(true);
-			}
-		}
 		
 		// 1.4.5
 		if (this.config.getString("TimeZone", null) == null) {
@@ -127,28 +119,23 @@ public class AccountInfo extends Plugin {
 			
 			this.saveConfig();
 		}
-		
+				
 		if (this.config.getString("SdfFormat", null) == null) {
 			this.config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
 			
 			this.saveConfig();
 		}
-		
+				
 		// 1.5.2
 		if (this.config.getStringList("Custom-Command").size() == 0) {
 			this.config.set("Custom-Command", Arrays.asList("gaccinfo", "gaccountinfo"));
 			
 			this.saveConfig();
 		}
-		
-		for (String command : this.config.getStringList("Custom-Command")) {
-			this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this, command));
-		}
+
+		this.updateFunction();
 
 		this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
-
-		this.timeZone = TimeZone.getTimeZone(this.config.getString("TimeZone"));
-		this.sdfFormat = this.config.getString("SdfFormat");
 		
 		this.pluginUpdater = new PluginUpdater().initBungee(this, new ConfigData(true, "https://ci.simplyrin.net/job/AccountInfo/", 
 				"./plugins/" + this.getDescription().getName() + "/.old-files", false, null, null));
@@ -184,6 +171,27 @@ public class AccountInfo extends Plugin {
 			Config.saveConfig(config, this.configFile);
 		}
 		this.config = Config.getConfig(this.configFile);
+	}
+	
+	public void updateFunction() {
+		if (this.config.getBoolean("Enable-IP-Check")) {
+			this.kokuminIPChecker = new KokuminIPChecker(this);
+			
+			if (this.config.getBoolean("Print-Debug")) {
+				this.kokuminIPChecker.setPrintDebug(true);
+			}
+		} else {
+			this.kokuminIPChecker = null;
+		}
+
+		this.getProxy().getPluginManager().unregisterCommands(this);
+		
+		for (String command : this.config.getStringList("Custom-Command")) {
+			this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this, command));
+		}
+		
+		this.timeZone = TimeZone.getTimeZone(this.config.getString("TimeZone"));
+		this.sdfFormat = this.config.getString("SdfFormat");
 	}
 	
 	public void saveConfig() {
