@@ -100,6 +100,7 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 			
 			if (args[0].equalsIgnoreCase("-reload")) {
 				this.instance.reloadConfig();
+				this.instance.updateFunction();
 				
 				this.instance.info(sender, "§aconfig.yml を再読み込みしました。");
 				return;
