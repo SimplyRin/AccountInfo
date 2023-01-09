@@ -163,11 +163,6 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 				if (op != null && this.instance.getAltChecker().hasPut(op.getUniqueId().toString())) {
 					Set<String> alts_ = new HashSet<>();
 
-					Set<UUID> uuids = this.instance.getAltCheckTest().getAltsByUUID(op.getUniqueId());
-					for (UUID uuid : uuids) {
-						alts_.add(this.instance.getAltChecker().getMCIDbyUUID(uuid));
-					}
-
 					List<TextComponent> alts = null;
 					List<TextComponent> addresses = null;
 					
