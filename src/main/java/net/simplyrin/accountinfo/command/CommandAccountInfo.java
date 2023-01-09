@@ -176,9 +176,7 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 						
 						alts = AccountFinder.getInstance().getSubAccounts(op);
 						addresses = AccountFinder.getInstance().getAddresses(op);
-						
-						System.out.println("...");
-						
+
 						Calendar calendar = Calendar.getInstance();
 						calendar.add(Calendar.SECOND, 20);
 						var cachedResult = new CachedResult(calendar.getTime().getTime(), alts, addresses);
