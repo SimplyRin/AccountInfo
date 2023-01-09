@@ -1,6 +1,7 @@
 package net.simplyrin.accountinfo.command;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -167,8 +168,24 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 						alts_.add(this.instance.getAltChecker().getMCIDbyUUID(uuid));
 					}
 
-					List<TextComponent> alts = AccountFinder.getInstance().getSubAccounts(op);
-					List<TextComponent> addresses = AccountFinder.getInstance().getAddresses(op);
+					List<TextComponent> alts = null;
+					List<TextComponent> addresses = null;
+					
+					var c = this.cache.get(op.getUniqueId().toString());
+					if (c != null && c.getAvailable() >= Calendar.getInstance().getTimeInMillis()) {
+						alts = c.getAlts();
+						addresses = c.getAddress();
+					} else {
+						this.cache.remove(op.getUniqueId().toString());
+						
+						alts = AccountFinder.getInstance().getSubAccounts(op);
+						addresses = AccountFinder.getInstance().getAddresses(op);
+						
+						Calendar calendar = Calendar.getInstance();
+						calendar.add(Calendar.SECOND, 20);
+						var cachedResult = new CachedResult(calendar.getTimeInMillis(), alts, addresses);
+						this.cache.put(op.getUniqueId().toString(), cachedResult);
+					}
 
 					// ページ取得
 					var altPage = 0;

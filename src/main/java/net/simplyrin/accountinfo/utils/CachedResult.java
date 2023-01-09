@@ -4,6 +4,7 @@ import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import net.md_5.bungee.api.chat.TextComponent;
 
 /**
  * Created by SimplyRin on 2023/01/05.
@@ -33,6 +34,7 @@ import lombok.Getter;
 public class CachedResult {
 	
 	private long available;
-	private List<String> data;
+	private List<TextComponent> alts;
+	private List<TextComponent> address;
 
 }
