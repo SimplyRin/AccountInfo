@@ -172,14 +172,19 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 						addresses = c.getAddress();
 					} else {
 						this.cache.remove(op.getUniqueId().toString());
+
 						
 						alts = AccountFinder.getInstance().getSubAccounts(op);
 						addresses = AccountFinder.getInstance().getAddresses(op);
 						
+						System.out.println("...");
+						
 						Calendar calendar = Calendar.getInstance();
 						calendar.add(Calendar.SECOND, 20);
-						var cachedResult = new CachedResult(calendar.getTimeInMillis(), alts, addresses);
+						var cachedResult = new CachedResult(calendar.getTime().getTime(), alts, addresses);
 						this.cache.put(op.getUniqueId().toString(), cachedResult);
+						
+						c = this.cache.get(op.getUniqueId().toString());
 					}
 
 					// ページ取得
@@ -215,7 +220,10 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 					// サブアカウント一覧
 					
 					if (alts.size() >= 8 && sender instanceof ProxiedPlayer) {
-						var split = this.divide(alts, 7);
+						if (c.getSplitAlts() == null) {
+							c.setSplitAlts(this.divide(alts, 7));
+						}
+						var split = c.getSplitAlts();
 						
 						var maxPage = split.size();
 						
@@ -278,7 +286,10 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 					// IP 一覧
 
 					if (addresses.size() >= 8 && sender instanceof ProxiedPlayer) {
-						var split = this.divide(addresses, 7);
+						if (c.getSplitAddress() == null) {
+							c.setSplitAddress(this.divide(addresses, 7));
+						}
+						var split = c.getSplitAddress();
 						
 						var maxPage = split.size();
 						

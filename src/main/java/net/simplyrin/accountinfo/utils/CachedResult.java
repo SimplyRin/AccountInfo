@@ -2,8 +2,9 @@ package net.simplyrin.accountinfo.utils;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.md_5.bungee.api.chat.TextComponent;
 
 /**
@@ -30,11 +31,16 @@ import net.md_5.bungee.api.chat.TextComponent;
  * SOFTWARE.
  */
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CachedResult {
 	
-	private long available;
-	private List<TextComponent> alts;
-	private List<TextComponent> address;
+	private final long available;
+	private final List<TextComponent> alts;
+	private final List<TextComponent> address;
+	
+	@Setter
+	private List<List<TextComponent>> splitAlts;
+	@Setter
+	private List<List<TextComponent>> splitAddress;
 
 }
