@@ -16,6 +16,14 @@
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
   
+  <distributionManagement>
+    <repository>
+      <id>net.simplyrin.config</id>
+      <name>Config</name>
+      <url>file://${project.build.directory}/mvn-repo</url>
+    </repository>
+  </distributionManagement>
+
   <build>
     <resources>
       <resource>
