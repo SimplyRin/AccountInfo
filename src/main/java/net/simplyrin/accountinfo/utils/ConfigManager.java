@@ -82,7 +82,7 @@ public class ConfigManager {
 		if (this.instance != null) {
 			return this.instance.getAddressConfig();
 		} else {
-			return this.playerConfig;
+			return this.addressConfig;
 		}
 	}
 
