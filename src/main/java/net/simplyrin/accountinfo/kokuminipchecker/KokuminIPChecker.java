@@ -24,6 +24,7 @@ import lombok.Setter;
 import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.commonsio.IOUtils;
 import net.simplyrin.accountinfo.config.Config;
+import net.simplyrin.accountinfo.utils.ConfigManager;
 
 /**
  * Created by SimplyRin on 2021/01/17.
@@ -67,6 +68,10 @@ public class KokuminIPChecker {
 	 * ip-api
 	 */
 	public RequestData get(String ip) {
+		return this.get(ip, this.instance != null ? new Date().getTime() : 0);
+	}
+	
+	public RequestData get(String ip, long now) {
 		if (ip.startsWith("127.0")
 				|| ip.startsWith("192.168.")
 				|| ip.startsWith("10.")
@@ -80,14 +85,13 @@ public class KokuminIPChecker {
 			return this.getNullData();
 		}
 
-		if (this.instance.getAddressConfig() != null && this.instance.getAddressConfig().getString(ip + ".JSON", null) != null) {
-			long expires = this.instance.getAddressConfig().getLong(ip + ".EXPIRES");
-			long now = new Date().getTime();
+		if (ConfigManager.getInstance().getAddressConfig() != null && ConfigManager.getInstance().getAddressConfig().getString(ip + ".JSON", null) != null) {
+			long expires = ConfigManager.getInstance().getAddressConfig().getLong(ip + ".EXPIRES");
 
 			// 有効期限が失効していない場合
 			if (expires >= now) {
 				this.println("[CACHE FOUND] " + ip);
-				JsonElement json = new JsonParser().parse(this.instance.getAddressConfig().getString(ip + ".JSON"));
+				JsonElement json = new JsonParser().parse(ConfigManager.getInstance().getAddressConfig().getString(ip + ".JSON"));
 				return new RequestData(this.gson.fromJson(json, IpData.class), true);
 			} else {
 				this.println("[CACHE EXPIRES] " + ip);
@@ -117,12 +121,12 @@ public class KokuminIPChecker {
 					JsonObject jsonObject = json.getAsJsonObject();
 
 					if (jsonObject.has("status") && jsonObject.get("status").getAsString().equals("success")) {
-						this.instance.getAddressConfig().set(ip + ".JSON", json.toString());
+						ConfigManager.getInstance().getAddressConfig().set(ip + ".JSON", json.toString());
 
 						// キャッシュ設定
 						Calendar calendar = Calendar.getInstance();
-						calendar.add(Calendar.DATE, this.instance.getConfig().getInt("Cache", 14));
-						this.instance.getAddressConfig().set(ip + ".EXPIRES", calendar.getTime().getTime());
+						calendar.add(Calendar.DATE, ConfigManager.getInstance().getConfig().getInt("Cache", 14));
+						ConfigManager.getInstance().getAddressConfig().set(ip + ".EXPIRES", calendar.getTime().getTime());
 
 						IpData data = this.gson.fromJson(json, IpData.class);
 						this.println("[DONE] Query: " + ip
@@ -130,7 +134,9 @@ public class KokuminIPChecker {
 								+ ", isProxy: " + data.getProxy()
 								+ ", isHosting: " + data.getHosting());
 
-						Config.saveConfig(this.instance.getAddressConfig(), this.instance.getAddressYmlFile());
+						if (this.instance != null) {
+							Config.saveConfig(ConfigManager.getInstance().getAddressConfig(), this.instance.getAddressYmlFile());
+						}
 					}
 				} catch (Exception e) {
 					e.printStackTrace();

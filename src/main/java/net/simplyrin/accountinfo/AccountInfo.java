@@ -15,9 +15,11 @@ import net.md_5.bungee.config.Configuration;
 import net.simplyrin.accountinfo.command.CommandAccountInfo;
 import net.simplyrin.accountinfo.config.Config;
 import net.simplyrin.accountinfo.kokuminipchecker.KokuminIPChecker;
+import net.simplyrin.accountinfo.listeners.EventListener;
 import net.simplyrin.accountinfo.listeners.OfflinePlayer;
 import net.simplyrin.accountinfo.utils.AltCheckTest;
 import net.simplyrin.accountinfo.utils.AltChecker;
+import net.simplyrin.accountinfo.utils.ConfigManager;
 import net.simplyrin.pluginupdater.ConfigData;
 import net.simplyrin.pluginupdater.PluginUpdater;
 
@@ -49,6 +51,8 @@ public class AccountInfo extends Plugin {
 
 	private String prefix = "&7[&cAccountInfo&7] &r";
 	
+	private ConfigManager configManager;
+	
 	private KokuminIPChecker kokuminIPChecker;
 	private TimeZone timeZone;
 	private String sdfFormat;
@@ -63,9 +67,13 @@ public class AccountInfo extends Plugin {
 	private File playerYmlFile;
 	private File addressYmlFile;
 	
+	@Deprecated
 	private Configuration config;
+	@Deprecated
 	private Configuration altsConfig;
+	@Deprecated
 	private Configuration playerConfig;
+	@Deprecated
 	private Configuration addressConfig;
 
 	private boolean liteBansBridge;
@@ -74,6 +82,9 @@ public class AccountInfo extends Plugin {
 	
 	@Override
 	public void onEnable() {
+		this.configManager = ConfigManager.getInstance();
+		this.configManager.setInstance(this);
+		
 		this.getDataFolder().mkdirs();
 		
 		this.reloadConfig();
@@ -109,7 +120,7 @@ public class AccountInfo extends Plugin {
 		this.addressConfig = Config.getConfig(this.addressYmlFile);
 
 		this.altChecker = new AltChecker(this);
-		this.altCheckTest = new AltCheckTest(this);
+		this.altCheckTest = new AltCheckTest();
 
 		this.liteBansBridge = this.getProxy().getPluginManager().getPlugin("LiteBans") != null;
 		
@@ -132,10 +143,18 @@ public class AccountInfo extends Plugin {
 			
 			this.saveConfig();
 		}
+		
+		// 1.8.1
+		if (!this.config.getBoolean("FastSave")) {
+			this.config.set("FastSave", false);
+			
+			this.saveConfig();
+		}
 
 		this.updateFunction();
 
-		this.getProxy().getPluginManager().registerListener(this, this.offlinePlayer = new OfflinePlayer(this));
+		this.offlinePlayer = new OfflinePlayer();
+		this.getProxy().getPluginManager().registerListener(this, new EventListener(this));
 		
 		this.pluginUpdater = new PluginUpdater().initBungee(this, new ConfigData(true, "https://ci.simplyrin.net/job/AccountInfo/", 
 				"./plugins/" + this.getDescription().getName() + "/.old-files", false, null, null));

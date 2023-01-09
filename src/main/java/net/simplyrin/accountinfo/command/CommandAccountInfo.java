@@ -1,9 +1,7 @@
 package net.simplyrin.accountinfo.command;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,7 +11,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import litebans.api.Database;
 import lombok.var;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -24,8 +21,11 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import net.simplyrin.accountinfo.AccountInfo;
-import net.simplyrin.accountinfo.kokuminipchecker.IpData;
+import net.simplyrin.accountinfo.listeners.OfflinePlayer;
+import net.simplyrin.accountinfo.utils.AccountFinder;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
+import net.simplyrin.accountinfo.utils.CachedResult;
+import net.simplyrin.accountinfo.utils.ConfigManager;
 
 /**
  * Created by natyu192.
@@ -49,6 +49,8 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 
 	private AccountInfo instance;
 	private String command;
+	
+	private HashMap<String, CachedResult> cache = new HashMap<>();
 
 	public CommandAccountInfo(AccountInfo instance, String command) {
 		super(command, null);
@@ -85,13 +87,13 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 				this.instance.info(sender, "§7player.yml のプレイヤーキーを正しく修正しています...。");
 				
 				var map = new HashMap<String, String>();
-				for (String key : this.instance.getPlayerConfig().getSection("player").getKeys()) {
-					map.put(key, this.instance.getPlayerConfig().getString("player." + key));
+				for (String key : ConfigManager.getInstance().getPlayerConfig().getSection("player").getKeys()) {
+					map.put(key, ConfigManager.getInstance().getPlayerConfig().getString("player." + key));
 				}
 				
 				for (Entry<String, String> entry : map.entrySet()) {
-					this.instance.getPlayerConfig().set("player." + entry.getKey(), null);
-					this.instance.getPlayerConfig().set("player." + entry.getKey().toLowerCase(), entry.getValue());
+					ConfigManager.getInstance().getPlayerConfig().set("player." + entry.getKey(), null);
+					ConfigManager.getInstance().getPlayerConfig().set("player." + entry.getKey().toLowerCase(), entry.getValue());
 				}
 				
 				this.instance.info(sender, "§aplayer.yml のプレイヤーキーを正しく修正しました。");
@@ -154,7 +156,7 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 					altsNames.forEach(name -> this.instance.info(sender, "§8- §a" + name));
 					return;
 				} else {
-					op = this.instance.getOfflinePlayer().getOfflinePlayer(args[0]);
+					op = OfflinePlayer.getOfflinePlayer(args[0]);
 				}
 
 				if (op != null && this.instance.getAltChecker().hasPut(op.getUniqueId().toString())) {
@@ -165,88 +167,8 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 						alts_.add(this.instance.getAltChecker().getMCIDbyUUID(uuid));
 					}
 
-					Set<String> addresses_ = this.instance.getAltCheckTest().getIPs(op.getUniqueId());
-
-					List<TextComponent> alts = new ArrayList<>();
-					List<TextComponent> addresses = new ArrayList<>();
-					for (String alt : alts_) {
-						CachedPlayer cachedPlayer = this.instance.getOfflinePlayer().getOfflinePlayer(alt);
-						
-						var lastIp = this.instance.getAltCheckTest().getLastHostAddress(cachedPlayer.getUniqueId());// this.instance.getAltsConfig().getString(cachedPlayer.getUniqueId().toString() + ".ip.last-hostaddress");
-						
-						var base = new TextComponent("§8- ");
-
-						String tag = "不明";
-						String ipHover = null;
-						
-						if (this.instance.getKokuminIPChecker() != null && lastIp != null) {
-							base.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + lastIp));
-							
-							tag = "§7[?] ";
-							
-							var data = this.instance.getKokuminIPChecker().get(lastIp);
-							var ipData = data.getIpData();
-							if (ipData != null) {
-								tag = this.getTagAndCountry(ipData, true);
-								ipHover = this.getAddressHoverJson(ipData);
-							}
-						}
-						
-						String date = "不明";
-						var lastLogin = this.instance.getAltCheckTest().getLastLogin(cachedPlayer.getUniqueId());
-						if (lastLogin != 0) {
-							var sdf = new SimpleDateFormat(this.instance.getSdfFormat());
-							date = sdf.format(new Date(lastLogin));
-						}
-
-						base.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§e最終ログイン日:\n"
-								+ "§8- §a" + date + "\n"
-								+ "§e最終ログイン IP:\n"
-								+ "§8- §a" + tag + (lastIp != null ? lastIp : "")
-								+ (ipHover != null ? "\n§eIP 情報:\n" + ipHover : ""))));
-						
-						if (this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(cachedPlayer.getUniqueId(), null)) {
-							base.addExtra("§c" + alt);
-							alts.add(base /* + " §8- §e" + be.getReason() */);
-						} else {
-							base.addExtra("§a" + alt);
-							alts.add(base);
-						}
-					}
-					for (String address : addresses_) {
-						
-						TextComponent textComponent = null;
-						var tag = "";
-						
-						if (this.instance.getKokuminIPChecker() != null) {
-							tag = "§7[?] ";
-							
-							var data = this.instance.getKokuminIPChecker().get(address);
-							var ipData = data.getIpData();
-							if (ipData != null) {
-								tag = this.getTagAndCountry(ipData, false);
-
-								textComponent = new TextComponent("§8- §a" + tag);
-								
-								var hover = "§eIP 回線タイプ:\n"
-										+ "§8- " + this.getAddressType(ipData) + "\n"
-										+ "§eIP 情報:\n"
-										+ this.getAddressHoverJson(ipData);
-
-								textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hover)));
-							}
-						}
-						
-						var banned = this.instance.isLiteBansBridge() && Database.get().isPlayerBanned(null, address);
-						if (textComponent != null) {
-							textComponent.addExtra((banned ? "§c§n" : "") + (tag.length() > 2 ? tag.substring(0, 2) : "") + address);
-							textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + address));
-							
-							addresses.add(textComponent);
-						} else {
-							addresses.add(new TextComponent("§8- §a" + tag + (banned ? "§c§n" : "") + address));
-						}
-					}
+					List<TextComponent> alts = AccountFinder.getInstance().getSubAccounts(op);
+					List<TextComponent> addresses = AccountFinder.getInstance().getAddresses(op);
 
 					// ページ取得
 					var altPage = 0;
@@ -434,49 +356,6 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 		} catch (Exception e) {
 			return null;
 		}
-	}
-	
-	public String getTagAndCountry(IpData ipData) {
-		return this.getTagAndCountry(ipData, false);
-	}
-	
-	public String getTagAndCountry(IpData ipData, boolean _long) {
-		String tag = "";
-		if (ipData.getMobile()) {
-			tag = "§9[M" + (_long ? "OBILE" : "") + "] ";
-		} else if (ipData.getProxy()) {
-			tag = "§c[P" + (_long ? "ROXY/VPN" : "") + "] ";
-		} else if (ipData.getHosting()) {
-			tag = "§6[V" + (_long ? "PS" : "") + "] ";
-		} else {
-			tag = "§a[N" + (_long ? "ORMAL" : "") + "] ";
-		}
-		
-		tag += "[" + ipData.getCountryCode() + "] ";
-		
-		return tag;
-	}
-	
-	public String getAddressType(IpData ipData) {
-		String tag = "";
-		if (ipData.getMobile()) {
-			tag = "§9[MOBILE] キャリア/モバイル回線";
-		} else if (ipData.getProxy()) {
-			tag = "§c[VPN] Proxy / VPN";
-		} else if (ipData.getHosting()) {
-			tag = "§6[VPS] Hosting";
-		} else {
-			tag = "§a[NORMAL] 通常";
-		}
-
-		return tag;
-	}
-	
-	public String getAddressHoverJson(IpData ipData) {
-		return "§8- §e検索 IP§f: §a" + ipData.getQuery() + "\n"
-				+ "§8- §e地域§f: §a" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\n"
-				+ "§8- §e国§f: §a" + ipData.getCountryCode() + " (" + ipData.getCountry() + ")\n"
-				+ "§8- §eプロバイダ§f: §a" + ipData.getIsp() + "";
 	}
 
 }

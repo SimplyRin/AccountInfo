@@ -40,12 +40,12 @@ public class AltChecker {
 	}
 
 	public void put(String playerName, String uuid, String hostaddress) {
-		var playerConfig = this.instance.getPlayerConfig();
+		var playerConfig = ConfigManager.getInstance().getPlayerConfig();
 		
 		playerConfig.set("player." + playerName.toLowerCase(), uuid);
 		playerConfig.set("uuid." + uuid, playerName);
 		
-		var altsConfig = this.instance.getAltsConfig();
+		var altsConfig = ConfigManager.getInstance().getAltsConfig();
 		
 		altsConfig.set(uuid + ".mcid", playerName);
 		altsConfig.set(uuid + ".ip.last-hostaddress", hostaddress);
@@ -64,14 +64,20 @@ public class AltChecker {
 			altsConfig.set(uuid + ".ip.hostaddresses", hostaddresses);
 		}
 
-		if (this.instance.getKokuminIPChecker() != null) {
-			this.instance.getKokuminIPChecker().get(hostaddress);
+		if (this.instance != null) {
+			if (ConfigManager.getInstance().getConfig().getBoolean("FastSave")) {
+				this.instance.saveConfig();
+			}
+			
+			if (this.instance.getKokuminIPChecker() != null) {
+				this.instance.getKokuminIPChecker().get(hostaddress);
+			}
 		}
 	}
 
 	public boolean hasPut(String uuid) {
 		try {
-			return this.instance.getAltsConfig().getKeys().contains(uuid);
+			return ConfigManager.getInstance().getAltsConfig().getKeys().contains(uuid);
 		} catch (Exception e) {
 			return false;
 		}
@@ -79,9 +85,9 @@ public class AltChecker {
 
 	public List<String> getAltsByHostAddress(String hostaddress) {
 		List<String> mcids = new ArrayList<String>();
-		for (String uuid : this.instance.getAltsConfig().getKeys()) {
-			if (!this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses").isEmpty()) {
-				if (this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses").contains(hostaddress)) {
+		for (String uuid : ConfigManager.getInstance().getAltsConfig().getKeys()) {
+			if (!ConfigManager.getInstance().getAltsConfig().getStringList(uuid + ".ip.hostaddresses").isEmpty()) {
+				if (ConfigManager.getInstance().getAltsConfig().getStringList(uuid + ".ip.hostaddresses").contains(hostaddress)) {
 					mcids.add(this.getMCIDbyUUID(UUID.fromString(uuid)));
 				}
 			}
@@ -91,9 +97,9 @@ public class AltChecker {
 
 	public List<String> getAltsByHostName(String hostname) {
 		List<String> mcids = new ArrayList<String>();
-		for (String uuid : this.instance.getAltsConfig().getKeys()) {
-			if (!this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames").isEmpty()) {
-				if (this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames").contains(hostname)) {
+		for (String uuid : ConfigManager.getInstance().getAltsConfig().getKeys()) {
+			if (!ConfigManager.getInstance().getAltsConfig().getStringList(uuid + ".ip.hostnames").isEmpty()) {
+				if (ConfigManager.getInstance().getAltsConfig().getStringList(uuid + ".ip.hostnames").contains(hostname)) {
 					mcids.add(this.getMCIDbyUUID(UUID.fromString(uuid)));
 				}
 			}
@@ -103,9 +109,9 @@ public class AltChecker {
 
 	public List<String> getAltsByMCID(String mcid) {
 		List<String> mcids = new ArrayList<String>();
-		for (String uuid : this.instance.getAltsConfig().getKeys()) {
-			if (this.instance.getAltsConfig().getString(uuid + ".mcid", null) != null && this.instance.getAltsConfig().getString(uuid + ".mcid").equalsIgnoreCase(mcid)) {
-				mcid = this.instance.getAltsConfig().getString(uuid + ".mcid");
+		for (String uuid : ConfigManager.getInstance().getAltsConfig().getKeys()) {
+			if (ConfigManager.getInstance().getAltsConfig().getString(uuid + ".mcid", null) != null && ConfigManager.getInstance().getAltsConfig().getString(uuid + ".mcid").equalsIgnoreCase(mcid)) {
+				mcid = ConfigManager.getInstance().getAltsConfig().getString(uuid + ".mcid");
 				List<String> hostnames = this.getHostNamesByMCID(mcid);
 				for (String hostname : hostnames) {
 					List<String> alts = this.getAltsByHostName(hostname);
@@ -134,7 +140,7 @@ public class AltChecker {
 		if (uuid == null) {
 			return null;
 		}
-		return this.instance.getAltsConfig().getStringList(uuid + ".ip.hostaddresses");
+		return ConfigManager.getInstance().getAltsConfig().getStringList(uuid + ".ip.hostaddresses");
 	}
 
 	public List<String> getHostNamesByMCID(String mcid) {
@@ -142,7 +148,7 @@ public class AltChecker {
 		if (uuid == null) {
 			return null;
 		}
-		return this.instance.getAltsConfig().getStringList(uuid + ".ip.hostnames");
+		return ConfigManager.getInstance().getAltsConfig().getStringList(uuid + ".ip.hostnames");
 	}
 
 	public UUID getUUIDByMCID(String mcid) {
