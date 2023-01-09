@@ -18,6 +18,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.kokuminipchecker.IpData;
+import net.simplyrin.accountinfo.kokuminipchecker.KokuminIPChecker;
 import net.simplyrin.accountinfo.listeners.OfflinePlayer;
 
 /**
@@ -77,12 +78,12 @@ public class AccountFinder {
 			String tag = "不明";
 			String ipHover = null;
 			
-			if (this.ac != null && this.ac.getKokuminIPChecker() != null && lastIp != null) {
+			if (ConfigManager.getInstance().getConfig().getBoolean("Enable-IP-Check") && lastIp != null) {
 				base.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + lastIp));
 				
 				tag = "§7[?] ";
 				
-				var data = this.ac.getKokuminIPChecker().get(lastIp);
+				var data = KokuminIPChecker.getInstance().get(lastIp);
 				var ipData = data.getIpData();
 				if (ipData != null) {
 					tag = this.getTagAndCountry(ipData, true);
@@ -125,10 +126,10 @@ public class AccountFinder {
 			TextComponent textComponent = null;
 			var tag = "";
 			
-			if (this.ac != null && this.ac.getKokuminIPChecker() != null) {
+			if (ConfigManager.getInstance().getConfig().getBoolean("Enable-IP-Check")) {
 				tag = "§7[?] ";
 				
-				var data = this.ac.getKokuminIPChecker().get(address);
+				var data = KokuminIPChecker.getInstance().get(address);
 				var ipData = data.getIpData();
 				if (ipData != null) {
 					tag = this.getTagAndCountry(ipData, false);

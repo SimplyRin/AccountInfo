@@ -52,7 +52,17 @@ import net.simplyrin.accountinfo.utils.ConfigManager;
 @RequiredArgsConstructor
 public class KokuminIPChecker {
 	
-	private final AccountInfo instance;
+	private static KokuminIPChecker instance;
+	
+	public static KokuminIPChecker getInstance() {
+		if (instance == null) {
+			instance = new KokuminIPChecker(null);
+		}
+		
+		return instance;
+	}
+	
+	private final AccountInfo accountInfo;
 	
 	private Gson gson = new Gson();
 
@@ -68,7 +78,7 @@ public class KokuminIPChecker {
 	 * ip-api
 	 */
 	public RequestData get(String ip) {
-		return this.get(ip, this.instance != null ? new Date().getTime() : 0);
+		return this.get(ip, this.accountInfo != null ? new Date().getTime() : 0);
 	}
 	
 	public RequestData get(String ip, long now) {
@@ -84,10 +94,10 @@ public class KokuminIPChecker {
 				|| ip.startsWith("LAPTOP-")) {
 			return this.getNullData();
 		}
-
+		
 		if (ConfigManager.getInstance().getAddressConfig() != null && ConfigManager.getInstance().getAddressConfig().getString(ip + ".JSON", null) != null) {
 			long expires = ConfigManager.getInstance().getAddressConfig().getLong(ip + ".EXPIRES");
-
+			
 			// 有効期限が失効していない場合
 			if (expires >= now) {
 				this.println("[CACHE FOUND] " + ip);
@@ -101,6 +111,12 @@ public class KokuminIPChecker {
 			this.println("[READY] Query: " + ip);
 			return this.getNullData();
 		}
+		
+		if (this.accountInfo == null) {
+			this.println("[STOP] Query: " + ip);
+			return this.getNullData();
+		}
+		
 		this.queued.add(ip);
 		this.rateService.execute(() -> {
 			Random rand = new Random();
@@ -134,8 +150,8 @@ public class KokuminIPChecker {
 								+ ", isProxy: " + data.getProxy()
 								+ ", isHosting: " + data.getHosting());
 
-						if (this.instance != null) {
-							Config.saveConfig(ConfigManager.getInstance().getAddressConfig(), this.instance.getAddressYmlFile());
+						if (this.accountInfo != null) {
+							Config.saveConfig(ConfigManager.getInstance().getAddressConfig(), this.accountInfo.getAddressYmlFile());
 						}
 					}
 				} catch (Exception e) {
