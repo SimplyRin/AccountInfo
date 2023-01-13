@@ -159,6 +159,24 @@ public class AccountFinder {
 		return addresses;
 	}
 	
+	public List<String> getAltsByIP(String ip) {
+		Set<UUID> alts = AltCheckTest.getInstance().getAltsByIP(ip);
+
+		if (alts.size() == 0) {
+			return null;
+		}
+
+		List<String> altsNames = new ArrayList<>();
+		alts.forEach(uuid -> {
+			String name = AltCheckTest.getInstance().getMCIDbyUUID(uuid);
+			if (name != null) {
+				altsNames.add(name);
+			}
+		});
+		
+		return altsNames;
+	}
+	
 	public String getTagAndCountry(IpData ipData) {
 		return this.getTagAndCountry(ipData, false);
 	}

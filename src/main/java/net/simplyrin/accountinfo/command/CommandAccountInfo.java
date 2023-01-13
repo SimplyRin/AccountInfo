@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -139,22 +138,15 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 			this.instance.getProxy().getScheduler().runAsync(this.instance, () -> {
 				CachedPlayer op = null;
 				if (args[0].contains(".")) {
-					Set<UUID> alts = this.instance.getAltCheckTest().getAltsByIP(args[0]);
+					List<String> names = AccountFinder.getInstance().getAltsByIP(args[0]);
 
-					if (alts.size() == 0) {
+					if (names == null) {
 						this.instance.info(sender, "§e" + args[0] + " §cに該当するプレイヤーが見つかりませんでした");
 						return;
 					}
 
-					Set<String> altsNames = new HashSet<>();
-					alts.forEach(uuid -> {
-						String name = this.instance.getAltCheckTest().getMCIDbyUUID(uuid);
-						if (name != null) {
-							altsNames.add(name);
-						}
-					});
 					this.instance.info(sender, "§b----- " + args[0] + " からログインしたことのあるアカウント一覧 -----");
-					altsNames.forEach(name -> this.instance.info(sender, "§8- §a" + name));
+					names.forEach(name -> this.instance.info(sender, "§8- §a" + name));
 					return;
 				} else {
 					op = OfflinePlayer.getOfflinePlayer(args[0]);
