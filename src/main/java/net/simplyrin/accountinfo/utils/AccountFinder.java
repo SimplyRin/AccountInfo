@@ -177,6 +177,15 @@ public class AccountFinder {
 		return altsNames;
 	}
 	
+	public String getHoverText(IpData ipData) {
+		var hover = "§eIP 回線タイプ:\n"
+				+ "§8- " + this.getAddressType(ipData) + "\n"
+				+ "§eIP 情報:\n"
+				+ this.getAddressHoverJson(ipData);
+		
+		return hover;
+	}
+	
 	public String getTagAndCountry(IpData ipData) {
 		return this.getTagAndCountry(ipData, false);
 	}

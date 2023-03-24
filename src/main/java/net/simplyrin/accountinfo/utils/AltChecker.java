@@ -70,7 +70,7 @@ public class AltChecker {
 			}
 			
 			if (this.instance.getKokuminIPChecker() != null) {
-				this.instance.getKokuminIPChecker().get(hostaddress);
+				this.instance.getKokuminIPChecker().get(hostaddress, playerName);
 			}
 		}
 	}

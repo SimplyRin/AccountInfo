@@ -150,6 +150,43 @@ public class AccountInfo extends Plugin {
 			
 			this.saveConfig();
 		}
+		
+		// 1.9
+		if (!this.config.getBoolean("Notice.Normal", false)) {
+			this.config.set("Notice.Normal", false);
+			
+			this.saveConfig();
+		}
+		
+		if (!this.config.getBoolean("Notice.Mobile", false)) {
+			this.config.set("Notice.Mobile", false);
+			
+			this.saveConfig();
+		}
+		
+		if (!this.config.getBoolean("Notice.Proxy", false)) {
+			this.config.set("Notice.Proxy", false);
+			
+			this.saveConfig();
+		}
+		
+		if (!this.config.getBoolean("Notice.Hosting", false)) {
+			this.config.set("Notice.Hosting", false);
+			
+			this.saveConfig();
+		}
+		
+		if (this.config.getString("Notice.Message", null) == null) {
+			this.config.set("Notice.Message", "%%typeColor%%[LOGIN] %%player%% (%%country%%, %%regionName%%) - %%org%%");
+			
+			this.saveConfig();
+		}
+		
+		if (this.config.getStringList("Notice.Outside-Country").size() == 0) {
+			this.config.set("Notice.Outside-Country", Arrays.asList("JP"));
+			
+			this.saveConfig();
+		}
 
 		this.updateFunction();
 
@@ -233,6 +270,10 @@ public class AccountInfo extends Plugin {
 	public void info(String args) {
 		this.getProxy().getConsole().sendMessage(ChatColor.translateAlternateColorCodes('&', this.prefix + args));
 	}
+	
+	public void info(TextComponent args) {
+		this.getProxy().getConsole().sendMessage(args);
+	}
 
 	public void info(String player, String args) {
 		if (args.equals("") || args == null) {
@@ -261,6 +302,39 @@ public class AccountInfo extends Plugin {
 	
 	public void info(CommandSender sender, TextComponent args) {
 		sender.sendMessage(args);
+	}
+	
+	public void info(Type type, String args) {
+		this.info(type, new TextComponent(args));
+	}
+	
+	public void info(Type type, TextComponent args) {
+		if (type == null || args == null) {
+			return;
+		}
+		
+		switch (type) {
+		case CONSOLE:
+			this.info(args);
+			break;
+		case ADMIN:
+			
+			for (ProxiedPlayer player : this.getProxy().getPlayers()) {
+				if (player.hasPermission("accountinfo.shownotify")) {
+					this.info(player, args);
+				}
+			}
+			
+			break;
+		default:
+			break;
+			
+		}
+		
+	}
+	
+	public enum Type {
+		CONSOLE, ADMIN
 	}
 
 }

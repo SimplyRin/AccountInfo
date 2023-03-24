@@ -153,7 +153,7 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 				}
 
 				if (op != null && this.instance.getAltChecker().hasPut(op.getUniqueId().toString())) {
-					this.instance.info(sender, "§3" + op.getName() + "の情報を読込中...");
+					this.instance.info(sender, "§3" + op.getName() + " の情報を読込中...");
 					
 					Set<String> alts_ = new HashSet<>();
 

@@ -1,5 +1,6 @@
 package net.simplyrin.accountinfo.kokuminipchecker;
 
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -21,9 +22,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.var;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.commonsio.IOUtils;
 import net.simplyrin.accountinfo.config.Config;
+import net.simplyrin.accountinfo.utils.AccountFinder;
 import net.simplyrin.accountinfo.utils.ConfigManager;
 
 /**
@@ -78,10 +86,18 @@ public class KokuminIPChecker {
 	 * ip-api
 	 */
 	public RequestData get(String ip) {
-		return this.get(ip, this.accountInfo != null ? new Date().getTime() : 0);
+		return this.get(ip, this.accountInfo != null ? new Date().getTime() : 0, null);
 	}
 	
 	public RequestData get(String ip, long now) {
+		return this.get(ip, now, null);
+	}
+	
+	public RequestData get(String ip, String playerName) {
+		return this.get(ip, this.accountInfo != null ? new Date().getTime() : 0, playerName);
+	}
+	
+	public RequestData get(String ip, long now, String playerName) {
 		if (ip.startsWith("127.0")
 				|| ip.startsWith("192.168.")
 				|| ip.startsWith("10.")
@@ -102,7 +118,11 @@ public class KokuminIPChecker {
 			if (expires >= now) {
 				this.println("[CACHE FOUND] " + ip);
 				JsonElement json = new JsonParser().parse(ConfigManager.getInstance().getAddressConfig().getString(ip + ".JSON"));
-				return new RequestData(this.gson.fromJson(json, IpData.class), true);
+				IpData data = this.gson.fromJson(json, IpData.class);
+				
+				this.notify(data, playerName);
+				
+				return new RequestData(data, true);
 			} else {
 				this.println("[CACHE EXPIRES] " + ip);
 			}
@@ -151,6 +171,8 @@ public class KokuminIPChecker {
 								+ ", isHosting: " + data.getHosting());
 
 						if (this.accountInfo != null) {
+							this.notify(data, playerName);
+							
 							Config.saveConfig(ConfigManager.getInstance().getAddressConfig(), this.accountInfo.getAddressYmlFile());
 						}
 					}
@@ -174,6 +196,68 @@ public class KokuminIPChecker {
 		}
 		
 		System.out.println(message);
+	}
+	
+	public void notify(IpData data, String playerName) {
+		if (playerName == null) {
+			return;
+		}
+		
+		var list = ConfigManager.getInstance().getConfig().getStringList("Notice.Outside-Country");
+
+		if (list.isEmpty()) {
+			return;
+		}
+		
+		var normal = ConfigManager.getInstance().getConfig().getBoolean("Notice.Normal");
+		var mobile = ConfigManager.getInstance().getConfig().getBoolean("Notice.Mobile");
+		var proxy = ConfigManager.getInstance().getConfig().getBoolean("Notice.Proxy");
+		var hosting = ConfigManager.getInstance().getConfig().getBoolean("Notice.Hosting");
+		
+		if (!list.contains(data.getCountryCode()) || normal || mobile || proxy || hosting) {
+			var notify = ConfigManager.getInstance().getConfig().getString("Notice.Message");
+			
+			var typeColor = "&a";
+			var type = "通常";
+			if (data.getMobile()) {
+				typeColor = "&9";
+				type = "モバイル";
+			} else if (data.getProxy()) {
+				typeColor = "&c";
+				type = "Proxy / VPN";
+			} else if (data.getHosting()) {
+				typeColor = "&c";
+				type = "VPS";
+			}
+			
+			notify = notify.replace("%%typeColor%%", typeColor);
+			notify = notify.replace("%%type%%", type);
+			notify = notify.replace("%%player%%", playerName);
+			
+			for (Field field : data.getClass().getDeclaredFields()) {
+				field.setAccessible(true);
+				String name = field.getName();
+
+				try {
+					notify = notify.replace("%%" + name + "%%", String.valueOf(field.get(data)));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
+			var base = new TextComponent(ChatColor.translateAlternateColorCodes('&', notify));
+			
+			base.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + data.getQuery()));
+			
+			var af = AccountFinder.getInstance().getHoverText(data);
+			base.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(af)));
+			
+			this.accountInfo.info(notify);
+			
+			this.accountInfo.getProxy().getScheduler().schedule(this.accountInfo, () -> {
+				this.accountInfo.info(AccountInfo.Type.ADMIN, base);
+			}, 2L, TimeUnit.SECONDS);
+		}
 	}
 
 	private RequestData getNullData() {
