@@ -69,7 +69,7 @@ public class AccountFinder {
 			
 			var lastIp = AltCheckTest.getInstance().getLastHostAddress(cachedPlayer.getUniqueId());// this.instance.getAltsConfig().getString(cachedPlayer.getUniqueId().toString() + ".ip.last-hostaddress");
 			
-			var base = new TextComponent("§8- ");
+			var base = new TextComponent("§8- §a");
 
 			String tag = "不明";
 			String ipHover = null;
