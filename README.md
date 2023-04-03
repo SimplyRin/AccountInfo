@@ -3,8 +3,6 @@
 
 ログインした IP も記録され、その IP が、VPN などかも確認できる機能付き
 
-[LiteBans](https://www.spigotmc.org/resources/3715/) で Ban されているプレイヤーは名前が赤色で表示されます。
-
 https://user-images.githubusercontent.com/26184969/166138981-36209aba-2351-40cf-a4a2-7402631ac95e.mp4
 
 # Open Source License
