@@ -1,5 +1,7 @@
 package net.simplyrin.accountinfo.api.event;
 
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +37,8 @@ public class RequestBanReasonEvent extends Event {
 	private Type type;
 	@Setter
 	private String value;
+	@Setter
+	private UUID uniqueId;
 
 	public enum Type {
 		PLAYER, ADDRESS

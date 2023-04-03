@@ -266,8 +266,8 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 						for (MessageType type : list) {
 							var messageType = type.getText();
 							
-							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.PLAYER, type.getValue());
-							
+							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.PLAYER, type.getValue(), type.getUniqueId());
+
 							this.instance.getProxy().getPluginManager().callEvent(event);
 							
 							var text = type.getText();
@@ -283,7 +283,7 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 						this.instance.info(sender, "§e§lサブアカウント一覧");
 						
 						for (MessageType type : alts) {
-							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.PLAYER, type.getValue());
+							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.PLAYER, type.getValue(), type.getUniqueId());
 							
 							this.instance.getProxy().getPluginManager().callEvent(event);
 							
@@ -350,7 +350,7 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 						var list = split.get(ipPage);
 						
 						for (MessageType type : list) {
-							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.ADDRESS, type.getValue());
+							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.ADDRESS, type.getValue(), null);
 							
 							this.instance.getProxy().getPluginManager().callEvent(event);
 							
@@ -367,7 +367,7 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 						this.instance.info(sender, "§e§lIP §8§l- §e§lAddress & Hostname 一覧");
 						
 						for (MessageType type : addresses) {
-							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.ADDRESS, type.getValue());
+							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.ADDRESS, type.getValue(), null);
 							
 							this.instance.getProxy().getPluginManager().callEvent(event);
 							

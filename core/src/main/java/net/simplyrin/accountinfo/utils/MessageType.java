@@ -1,5 +1,7 @@
 package net.simplyrin.accountinfo.utils;
 
+import java.util.UUID;
+
 import lombok.Data;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -36,6 +38,7 @@ public class MessageType {
 	private Type type;
 	private String tagColor;
 	// PLAYER ならプレイヤー名、ADDRESS ならIPアドレス
+	private UUID uniqueId;
 	private String value;
 	private TextComponent text;
 

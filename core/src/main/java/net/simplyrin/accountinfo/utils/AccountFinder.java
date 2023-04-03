@@ -104,6 +104,7 @@ public class AccountFinder {
 
 			message.setTagColor("§a");
 			message.setType(MessageType.Type.PLAYER);
+			message.setUniqueId(cachedPlayer.getUniqueId());
 			message.setValue(alt);
 			message.setText(base);
 			
