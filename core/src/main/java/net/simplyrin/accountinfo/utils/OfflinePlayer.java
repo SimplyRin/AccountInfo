@@ -1,30 +1,22 @@
-package net.simplyrin.accountinfo.listeners;
+package net.simplyrin.accountinfo.utils;
 
-import java.net.InetSocketAddress;
-
-import lombok.RequiredArgsConstructor;
-import lombok.var;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
-import net.simplyrin.accountinfo.AccountInfo;
-import net.simplyrin.accountinfo.kokuminipchecker.PlayerData;
+import java.util.UUID;
 
 /**
- * Created by SimplyRin on 2023/01/09.
+ * Created by SimplyRin on 2021/10/26.
  *
- * Copyright (c) 2023 SimplyRin
- * 
+ * Copyright (c) 2021 SimplyRin
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,19 +25,27 @@ import net.simplyrin.accountinfo.kokuminipchecker.PlayerData;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-@RequiredArgsConstructor
-public class EventListener implements Listener {
+public class OfflinePlayer {
 
-	private final AccountInfo instance;
+	public static CachedPlayer getOfflinePlayer(String name) {
+		try {
+			UUID uniqueId = UUID.fromString(ConfigManager.getInstance().getPlayerConfig().getString("player." + name.toLowerCase(), null));
+			String pn = ConfigManager.getInstance().getPlayerConfig().getString("uuid." + uniqueId.toString());
 
-	@EventHandler
-	public void onServerSwitch(PostLoginEvent event) {
-		var player = event.getPlayer();
-		var address = (InetSocketAddress) player.getSocketAddress();
-				
-		var pd = new PlayerData(player.getName(), player.getUniqueId(), address.getAddress().getHostAddress());
-		
-		this.instance.getAltChecker().put(pd);
+			return new CachedPlayer(uniqueId, pn);
+		} catch (Exception e) {
+		}
+
+		return null;
+	}
+
+	public static CachedPlayer getOfflinePlayer(UUID uniqueId) {
+		String pn = ConfigManager.getInstance().getPlayerConfig().getString("uuid." + uniqueId.toString(), null);
+		if (pn != null) {
+			return new CachedPlayer(uniqueId, pn);
+		}
+
+		return null;
 	}
 
 }

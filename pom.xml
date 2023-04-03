@@ -5,7 +5,7 @@
   <groupId>net.simplyrin.accountinfo</groupId>
   <artifactId>AccountInfo</artifactId>
   <version>1.9</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
   <name>AccountInfo</name>
   <url>http://maven.apache.org</url>
@@ -15,6 +15,12 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
+
+  <modules>
+    <module>bungee</module>
+    <module>bungee-api</module>
+    <module>core</module>
+  </modules>
   
   <distributionManagement>
     <repository>
@@ -23,37 +29,6 @@
       <url>file://${project.build.directory}/mvn-repo</url>
     </repository>
   </distributionManagement>
-
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.3.0</version>
-        <configuration>
-          <finalName>${project.name}-${project.version}</finalName>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 
   <repositories>
     <repository>
@@ -76,25 +51,6 @@
       <artifactId>lombok</artifactId>
       <version>1.18.22</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.md-5</groupId>
-      <artifactId>bungeecord-api</artifactId>
-      <version>1.17-R0.1-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.gitlab.ruany</groupId>
-      <artifactId>LiteBansAPI</artifactId>
-      <version>0.3.4</version>
-      <scope>provided</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>net.simplyrin.pluginupdater</groupId>
-      <artifactId>PluginUpdater</artifactId>
-      <version>1.2</version>
     </dependency>
     <dependency>
       <groupId>org.yaml</groupId>

@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>net.simplyrin.accountinfo</groupId>
+    <artifactId>AccountInfo</artifactId>
+    <version>1.9</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>AccountInfo-bungee-api</artifactId>
+  <packaging>jar</packaging>
+
+  <name>AccountInfo-bungee-api</name>
+  <url>http://maven.apache.org</url>
+  
+  <dependencies>
+    <dependency>
+      <groupId>net.md-5</groupId>
+      <artifactId>bungeecord-api</artifactId>
+      <version>1.19-R0.1-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+
+</project>
