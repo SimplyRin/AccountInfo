@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Event;
 
 /**
@@ -34,7 +35,11 @@ import net.md_5.bungee.api.plugin.Event;
 @Getter
 public class RequestBanReasonEvent extends Event {
 	
+	@Setter
+	private boolean changed;
 	private Type type;
+	@Setter
+	private TextComponent text;
 	@Setter
 	private String value;
 	@Setter
