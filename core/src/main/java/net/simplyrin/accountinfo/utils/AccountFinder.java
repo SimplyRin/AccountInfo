@@ -65,6 +65,8 @@ public class AccountFinder {
 		}
 		
 		for (String alt : alts_) {
+			var message = new MessageType();
+			
 			CachedPlayer cachedPlayer = OfflinePlayer.getOfflinePlayer(alt);
 			
 			var lastIp = AltCheckTest.getInstance().getLastHostAddress(cachedPlayer.getUniqueId());// this.instance.getAltsConfig().getString(cachedPlayer.getUniqueId().toString() + ".ip.last-hostaddress");
@@ -100,11 +102,12 @@ public class AccountFinder {
 					+ "§8- §a" + tag + (lastIp != null ? lastIp : "")
 					+ (ipHover != null ? "\n§eIP 情報:\n" + ipHover : ""))));
 
-			var message = new MessageType();
-
+			message.setTagColor("§a");
 			message.setType(MessageType.Type.PLAYER);
 			message.setValue(alt);
 			message.setText(base);
+			
+			alts.add(message);
 		}
 		
 		return alts;
@@ -116,6 +119,8 @@ public class AccountFinder {
 		List<MessageType> addresses = new ArrayList<>();
 
 		for (String address : addresses_) {
+			
+			var message = new MessageType();
 			
 			TextComponent textComponent = null;
 			var tag = "";
@@ -137,12 +142,15 @@ public class AccountFinder {
 
 					textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hover)));
 				}
+				
+				message.setTagColor(tag.substring(0, 2));
 			}
 
-			var message = new MessageType();
 			message.setType(MessageType.Type.ADDRESS);
 			message.setValue(address);
 			message.setText(textComponent);
+			
+			addresses.add(message);
 		}
 		
 		return addresses;

@@ -29,13 +29,14 @@ import net.md_5.bungee.api.chat.TextComponent;
 @Data
 public class MessageType {
 
-    public enum Type {
-        PLAYER, ADDRESS, OTHER;
-    }
+	public enum Type {
+		PLAYER, ADDRESS, OTHER;
+	}
 
-    private Type type;
-    // PLAYER ならプレイヤー名、ADDRESS ならIPアドレス
-    private String value;
-    private TextComponent text;
+	private Type type;
+	private String tagColor;
+	// PLAYER ならプレイヤー名、ADDRESS ならIPアドレス
+	private String value;
+	private TextComponent text;
 
 }

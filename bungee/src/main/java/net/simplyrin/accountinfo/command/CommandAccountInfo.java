@@ -271,7 +271,9 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 							this.instance.getProxy().getPluginManager().callEvent(event);
 							
 							var text = type.getText();
-							text.addExtra(event.getValue());
+							if (event.getValue() != null) {
+								text.addExtra(type.getTagColor() + event.getValue());
+							}
 
 							this.instance.info(sender, text);
 						}
@@ -286,7 +288,9 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 							this.instance.getProxy().getPluginManager().callEvent(event);
 							
 							var text = type.getText();
-							text.addExtra(event.getValue());
+							if (event.getValue() != null) {
+								text.addExtra(type.getTagColor() + event.getValue());
+							}
 
 							this.instance.info(sender, text);
 						}
@@ -351,7 +355,9 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 							this.instance.getProxy().getPluginManager().callEvent(event);
 							
 							var text = type.getText();
-							text.addExtra(event.getValue());
+							if (event.getValue() != null) {
+								text.addExtra(type.getTagColor() + event.getValue());
+							}
 
 							this.instance.info(sender, text);
 						}
@@ -366,7 +372,9 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 							this.instance.getProxy().getPluginManager().callEvent(event);
 							
 							var text = type.getText();
-							text.addExtra(event.getValue());
+							if (event.getValue() != null) {
+								text.addExtra(type.getTagColor() + event.getValue());
+							}
 
 							this.instance.info(sender, text);
 						}
