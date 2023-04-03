@@ -1,9 +1,7 @@
-package net.simplyrin.accountinfo.listeners;
+package net.simplyrin.accountinfo.utils;
 
-import java.util.UUID;
-
-import net.simplyrin.accountinfo.utils.CachedPlayer;
-import net.simplyrin.accountinfo.utils.ConfigManager;
+import lombok.Data;
+import net.md_5.bungee.api.chat.TextComponent;
 
 /**
  * Created by SimplyRin on 2021/10/26.
@@ -28,27 +26,16 @@ import net.simplyrin.accountinfo.utils.ConfigManager;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-public class OfflinePlayer {
+@Data
+public class MessageType {
 
-	public static CachedPlayer getOfflinePlayer(String name) {
-		try {
-			UUID uniqueId = UUID.fromString(ConfigManager.getInstance().getPlayerConfig().getString("player." + name.toLowerCase(), null));
-			String pn = ConfigManager.getInstance().getPlayerConfig().getString("uuid." + uniqueId.toString());
+    public enum Type {
+        PLAYER, ADDRESS, OTHER;
+    }
 
-			return new CachedPlayer(uniqueId, pn);
-		} catch (Exception e) {
-		}
-
-		return null;
-	}
-
-	public static CachedPlayer getOfflinePlayer(UUID uniqueId) {
-		String pn = ConfigManager.getInstance().getPlayerConfig().getString("uuid." + uniqueId.toString(), null);
-		if (pn != null) {
-			return new CachedPlayer(uniqueId, pn);
-		}
-
-		return null;
-	}
+    private Type type;
+    // PLAYER ならプレイヤー名、ADDRESS ならIPアドレス
+    private String value;
+    private TextComponent text;
 
 }

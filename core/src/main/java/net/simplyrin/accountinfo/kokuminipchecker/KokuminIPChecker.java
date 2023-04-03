@@ -28,7 +28,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.commonsio.IOUtils;
 import net.simplyrin.accountinfo.config.Config;
 import net.simplyrin.accountinfo.utils.AccountFinder;
@@ -64,15 +63,16 @@ public class KokuminIPChecker {
 	
 	public static KokuminIPChecker getInstance() {
 		if (instance == null) {
-			instance = new KokuminIPChecker(null);
+			instance = new KokuminIPChecker();
 		}
 		
 		return instance;
 	}
-	
-	private final AccountInfo accountInfo;
-	
+
 	private Gson gson = new Gson();
+
+	@Setter
+	private boolean pluginMode;
 
 	private ExecutorService rateService = Executors.newFixedThreadPool(40);
 	private ExecutorService fetchService = Executors.newFixedThreadPool(128);
@@ -86,7 +86,7 @@ public class KokuminIPChecker {
 	 * ip-api
 	 */
 	public RequestData get(String ip) {
-		return this.get(ip, this.accountInfo != null ? new Date().getTime() : 0, null);
+		return this.get(ip, this.pluginMode ? new Date().getTime() : 0, null);
 	}
 	
 	public RequestData get(String ip, long now) {
@@ -94,7 +94,7 @@ public class KokuminIPChecker {
 	}
 	
 	public RequestData get(String ip, String playerName) {
-		return this.get(ip, this.accountInfo != null ? new Date().getTime() : 0, playerName);
+		return this.get(ip, this.pluginMode ? new Date().getTime() : 0, playerName);
 	}
 	
 	public RequestData get(String ip, long now, String playerName) {
@@ -132,7 +132,7 @@ public class KokuminIPChecker {
 			return this.getNullData();
 		}
 		
-		if (this.accountInfo == null) {
+		if (this.pluginMode) {
 			this.println("[STOP] Query: " + ip);
 			return this.getNullData();
 		}
@@ -170,10 +170,10 @@ public class KokuminIPChecker {
 								+ ", isProxy: " + data.getProxy()
 								+ ", isHosting: " + data.getHosting());
 
-						if (this.accountInfo != null) {
+						if (this.pluginMode) {
 							this.notify(data, playerName);
-							
-							Config.saveConfig(ConfigManager.getInstance().getAddressConfig(), this.accountInfo.getAddressYmlFile());
+
+							Config.saveConfig(ConfigManager.getInstance().getAddressConfig(), ConfigManager.getInstance().getAddressFile());
 						}
 					}
 				} catch (Exception e) {
@@ -198,15 +198,15 @@ public class KokuminIPChecker {
 		System.out.println(message);
 	}
 	
-	public void notify(IpData data, String playerName) {
+	public String notify(IpData data, String playerName) {
 		if (playerName == null) {
-			return;
+			return null;
 		}
 		
 		var list = ConfigManager.getInstance().getConfig().getStringList("Notice.Outside-Country");
 
 		if (list.isEmpty()) {
-			return;
+			return null;
 		}
 		
 		var normal = ConfigManager.getInstance().getConfig().getBoolean("Notice.Normal");
@@ -251,13 +251,17 @@ public class KokuminIPChecker {
 			
 			var af = AccountFinder.getInstance().getHoverText(data);
 			base.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(af)));
+
+			return notify;
 			
-			this.accountInfo.info(notify);
+			/* this.accountInfo.info(notify);
 			
 			this.accountInfo.getProxy().getScheduler().schedule(this.accountInfo, () -> {
 				this.accountInfo.info(AccountInfo.Type.ADMIN, base);
-			}, 2L, TimeUnit.SECONDS);
+			}, 2L, TimeUnit.SECONDS); */
 		}
+
+		return null;
 	}
 
 	private RequestData getNullData() {

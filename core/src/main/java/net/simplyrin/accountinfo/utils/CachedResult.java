@@ -1,11 +1,13 @@
 package net.simplyrin.accountinfo.utils;
 
+import java.util.List;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.config.Configuration;
-import net.simplyrin.accountinfo.AccountInfo;
 
 /**
- * Created by SimplyRin on 2023/01/08.
+ * Created by SimplyRin on 2023/01/05.
  *
  * Copyright (c) 2023 SimplyRin
  * 
@@ -27,63 +29,17 @@ import net.simplyrin.accountinfo.AccountInfo;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-public class ConfigManager {
+@Getter
+@RequiredArgsConstructor
+public class CachedResult {
 	
-	private static ConfigManager manager;
-	
-	public static ConfigManager getInstance() {
-		if (manager == null) {
-			manager = new ConfigManager();
-		}
-		
-		return manager;
-	}
+	private final long available;
+	private final List<MessageType> alts;
+	private final List<MessageType> address;
 	
 	@Setter
-	private AccountInfo instance;
-	
+	private List<List<MessageType>> splitAlts;
 	@Setter
-	private Configuration config;
-	
-	public Configuration getConfig() {
-		if (this.instance != null) {
-			return this.instance.getConfig();
-		} else {
-			return this.config;
-		}
-	}
-	
-	@Setter
-	private Configuration altsConfig;
-	
-	public Configuration getAltsConfig() {
-		if (this.instance != null) {
-			return this.instance.getAltsConfig();
-		} else {
-			return this.altsConfig;
-		}
-	}
-	
-	@Setter
-	private Configuration playerConfig;
-	
-	public Configuration getPlayerConfig() {
-		if (this.instance != null) {
-			return this.instance.getPlayerConfig();
-		} else {
-			return this.playerConfig;
-		}
-	}
-	
-	@Setter
-	private Configuration addressConfig;
-	
-	public Configuration getAddressConfig() {
-		if (this.instance != null) {
-			return this.instance.getAddressConfig();
-		} else {
-			return this.addressConfig;
-		}
-	}
+	private List<List<MessageType>> splitAddress;
 
 }

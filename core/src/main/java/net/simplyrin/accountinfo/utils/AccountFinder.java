@@ -8,18 +8,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import litebans.api.Database;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.var;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.kokuminipchecker.IpData;
 import net.simplyrin.accountinfo.kokuminipchecker.KokuminIPChecker;
-import net.simplyrin.accountinfo.listeners.OfflinePlayer;
 
 /**
  * Created by SimplyRin on 2023/01/09.
@@ -55,12 +51,12 @@ public class AccountFinder {
 		
 		return instance;
 	}
-	
-	@Getter @Setter
-	private AccountInfo ac;
-	
-	public List<TextComponent> getSubAccounts(CachedPlayer op) {
-		List<TextComponent> alts = new ArrayList<>();
+
+	@Setter
+	private boolean pluginMode;
+
+	public List<MessageType> getSubAccounts(CachedPlayer op) {
+		List<MessageType> alts = new ArrayList<>();
 		Set<String> alts_ = new HashSet<>();
 
 		Set<UUID> uuids = AltCheckTest.getInstance().getAltsByUUID(op.getUniqueId());
@@ -94,7 +90,7 @@ public class AccountFinder {
 			String date = "不明";
 			var lastLogin = AltCheckTest.getInstance().getLastLogin(cachedPlayer.getUniqueId());
 			if (lastLogin != 0) {
-				var sdf = new SimpleDateFormat(this.ac != null ? this.ac.getSdfFormat() : "yyyy/MM/dd HH:mm:ss");
+				var sdf = new SimpleDateFormat(this.pluginMode ? ConfigManager.getInstance().getConfig().getString("SdfFormat") : "yyyy/MM/dd HH:mm:ss");
 				date = sdf.format(new Date(lastLogin));
 			}
 
@@ -103,23 +99,21 @@ public class AccountFinder {
 					+ "§e最終ログイン IP:\n"
 					+ "§8- §a" + tag + (lastIp != null ? lastIp : "")
 					+ (ipHover != null ? "\n§eIP 情報:\n" + ipHover : ""))));
-			
-			if (this.ac != null && this.ac.isLiteBansBridge() && Database.get().isPlayerBanned(cachedPlayer.getUniqueId(), null)) {
-				base.addExtra("§c" + alt);
-				alts.add(base /* + " §8- §e" + be.getReason() */);
-			} else {
-				base.addExtra("§a" + alt);
-				alts.add(base);
-			}
+
+			var message = new MessageType();
+
+			message.setType(MessageType.Type.PLAYER);
+			message.setValue(alt);
+			message.setText(base);
 		}
 		
 		return alts;
 	}
 	
-	public List<TextComponent> getAddresses(CachedPlayer op) {
+	public List<MessageType> getAddresses(CachedPlayer op) {
 		Set<String> addresses_ = AltCheckTest.getInstance().getIPs(op.getUniqueId());
 
-		List<TextComponent> addresses = new ArrayList<>();
+		List<MessageType> addresses = new ArrayList<>();
 
 		for (String address : addresses_) {
 			
@@ -144,16 +138,11 @@ public class AccountFinder {
 					textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(hover)));
 				}
 			}
-			
-			var banned = this.ac != null && this.ac.isLiteBansBridge() && Database.get().isPlayerBanned(null, address);
-			if (textComponent != null) {
-				textComponent.addExtra((banned ? "§c§n" : "") + (tag.length() > 2 ? tag.substring(0, 2) : "") + address);
-				textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + address));
-				
-				addresses.add(textComponent);
-			} else {
-				addresses.add(new TextComponent("§8- §a" + tag + (banned ? "§c§n" : "") + address));
-			}
+
+			var message = new MessageType();
+			message.setType(MessageType.Type.ADDRESS);
+			message.setValue(address);
+			message.setText(textComponent);
 		}
 		
 		return addresses;

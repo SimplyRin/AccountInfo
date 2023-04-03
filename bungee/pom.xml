@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>net.simplyrin.accountinfo</groupId>
+    <artifactId>AccountInfo</artifactId>
+    <version>1.9</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>AccountInfo-bungee</artifactId>
+  <packaging>jar</packaging>
+
+  <name>AccountInfo-bungee</name>
+  <url>http://maven.apache.org</url>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <finalName>${project.name}-${project.version}</finalName>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+  <dependency>
+      <groupId>net.simplyrin.accountinfo</groupId>
+      <artifactId>AccountInfo-bungee-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.simplyrin.accountinfo</groupId>
+      <artifactId>AccountInfo-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.md-5</groupId>
+      <artifactId>bungeecord-api</artifactId>
+      <version>1.19-R0.1-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.simplyrin.pluginupdater</groupId>
+      <artifactId>PluginUpdater</artifactId>
+      <version>1.2</version>
+    </dependency>
+  </dependencies>
+</project>

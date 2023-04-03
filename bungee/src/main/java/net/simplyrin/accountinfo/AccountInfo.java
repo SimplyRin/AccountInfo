@@ -16,10 +16,10 @@ import net.simplyrin.accountinfo.command.CommandAccountInfo;
 import net.simplyrin.accountinfo.config.Config;
 import net.simplyrin.accountinfo.kokuminipchecker.KokuminIPChecker;
 import net.simplyrin.accountinfo.listeners.EventListener;
-import net.simplyrin.accountinfo.listeners.OfflinePlayer;
 import net.simplyrin.accountinfo.utils.AltCheckTest;
 import net.simplyrin.accountinfo.utils.AltChecker;
 import net.simplyrin.accountinfo.utils.ConfigManager;
+import net.simplyrin.accountinfo.utils.OfflinePlayer;
 import net.simplyrin.pluginupdater.ConfigData;
 import net.simplyrin.pluginupdater.PluginUpdater;
 
@@ -66,15 +66,6 @@ public class AccountInfo extends Plugin {
 	private File altsYmlFile;
 	private File playerYmlFile;
 	private File addressYmlFile;
-	
-	@Deprecated
-	private Configuration config;
-	@Deprecated
-	private Configuration altsConfig;
-	@Deprecated
-	private Configuration playerConfig;
-	@Deprecated
-	private Configuration addressConfig;
 
 	private boolean liteBansBridge;
 	
@@ -83,8 +74,7 @@ public class AccountInfo extends Plugin {
 	@Override
 	public void onEnable() {
 		this.configManager = ConfigManager.getInstance();
-		this.configManager.setInstance(this);
-		
+
 		this.getDataFolder().mkdirs();
 		
 		this.reloadConfig();
@@ -97,7 +87,8 @@ public class AccountInfo extends Plugin {
 				e.printStackTrace();
 			}
 		}
-		this.altsConfig = Config.getConfig(this.altsYmlFile);
+		ConfigManager.getInstance().setAddressFile(this.altsYmlFile);
+		ConfigManager.getInstance().setAltsConfig(Config.getConfig(this.altsYmlFile));
 
 		this.playerYmlFile = new File(this.getDataFolder(), "player.yml");
 		if (!this.playerYmlFile.exists()) {
@@ -107,7 +98,8 @@ public class AccountInfo extends Plugin {
 				e.printStackTrace();
 			}
 		}
-		this.playerConfig = Config.getConfig(this.playerYmlFile);
+		ConfigManager.getInstance().setPlayerFile(this.playerYmlFile);
+		ConfigManager.getInstance().setPlayerConfig(Config.getConfig(this.playerYmlFile));
 		
 		this.addressYmlFile = new File(this.getDataFolder(), "address.yml");
 		if (!this.addressYmlFile.exists()) {
@@ -117,73 +109,76 @@ public class AccountInfo extends Plugin {
 				e.printStackTrace();
 			}
 		}
-		this.addressConfig = Config.getConfig(this.addressYmlFile);
+		ConfigManager.getInstance().setPlayerFile(this.addressYmlFile);
+		ConfigManager.getInstance().setAddressConfig(Config.getConfig(this.addressYmlFile));
 
-		this.altChecker = new AltChecker(this);
+		this.altChecker = new AltChecker();
 		this.altCheckTest = new AltCheckTest();
 
 		this.liteBansBridge = this.getProxy().getPluginManager().getPlugin("LiteBans") != null;
+
+		Configuration config = ConfigManager.getInstance().getConfig();
 		
 		// 1.4.5
-		if (this.config.getString("TimeZone", null) == null) {
-			this.config.set("TimeZone", "Asia/Tokyo");
+		if (config.getString("TimeZone", null) == null) {
+			config.set("TimeZone", "Asia/Tokyo");
 			
 			this.saveConfig();
 		}
 				
-		if (this.config.getString("SdfFormat", null) == null) {
-			this.config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
+		if (config.getString("SdfFormat", null) == null) {
+			config.set("SdfFormat", "yyyy/MM/dd HH:mm:ss");
 			
 			this.saveConfig();
 		}
 				
 		// 1.5.2
-		if (this.config.getStringList("Custom-Command").size() == 0) {
-			this.config.set("Custom-Command", Arrays.asList("gaccinfo", "gaccountinfo"));
+		if (config.getStringList("Custom-Command").size() == 0) {
+			config.set("Custom-Command", Arrays.asList("gaccinfo", "gaccountinfo"));
 			
 			this.saveConfig();
 		}
 		
 		// 1.8.1
-		if (!this.config.getBoolean("FastSave")) {
-			this.config.set("FastSave", false);
+		if (!config.getBoolean("FastSave")) {
+			config.set("FastSave", false);
 			
 			this.saveConfig();
 		}
 		
 		// 1.9
-		if (!this.config.getBoolean("Notice.Normal", false)) {
-			this.config.set("Notice.Normal", false);
+		if (!config.getBoolean("Notice.Normal", false)) {
+			config.set("Notice.Normal", false);
 			
 			this.saveConfig();
 		}
 		
-		if (!this.config.getBoolean("Notice.Mobile", false)) {
-			this.config.set("Notice.Mobile", false);
+		if (!config.getBoolean("Notice.Mobile", false)) {
+			config.set("Notice.Mobile", false);
 			
 			this.saveConfig();
 		}
 		
-		if (!this.config.getBoolean("Notice.Proxy", false)) {
-			this.config.set("Notice.Proxy", false);
+		if (!config.getBoolean("Notice.Proxy", false)) {
+			config.set("Notice.Proxy", false);
 			
 			this.saveConfig();
 		}
 		
-		if (!this.config.getBoolean("Notice.Hosting", false)) {
-			this.config.set("Notice.Hosting", false);
+		if (!config.getBoolean("Notice.Hosting", false)) {
+			config.set("Notice.Hosting", false);
 			
 			this.saveConfig();
 		}
 		
-		if (this.config.getString("Notice.Message", null) == null) {
-			this.config.set("Notice.Message", "%%typeColor%%[LOGIN] %%player%% (%%country%%, %%regionName%%) - %%org%%");
+		if (config.getString("Notice.Message", null) == null) {
+			config.set("Notice.Message", "%%typeColor%%[LOGIN] %%player%% (%%country%%, %%regionName%%) - %%org%%");
 			
 			this.saveConfig();
 		}
 		
-		if (this.config.getStringList("Notice.Outside-Country").size() == 0) {
-			this.config.set("Notice.Outside-Country", Arrays.asList("JP"));
+		if (config.getStringList("Notice.Outside-Country").size() == 0) {
+			config.set("Notice.Outside-Country", Arrays.asList("JP"));
 			
 			this.saveConfig();
 		}
@@ -193,7 +188,8 @@ public class AccountInfo extends Plugin {
 		this.offlinePlayer = new OfflinePlayer();
 		this.getProxy().getPluginManager().registerListener(this, new EventListener(this));
 		
-		this.pluginUpdater = new PluginUpdater().initBungee(this, new ConfigData(true, "https://ci.simplyrin.net/job/AccountInfo/", 
+		this.pluginUpdater = new PluginUpdater().initBungee(this, new ConfigData(true, "https://ci.simplyrin.net/job/" 
+				+ this.getDescription().getName() +"/", 
 				"./plugins/" + this.getDescription().getName() + "/.old-files", false, null, null));
 	}
 
@@ -226,14 +222,19 @@ public class AccountInfo extends Plugin {
 			
 			Config.saveConfig(config, this.configFile);
 		}
-		this.config = Config.getConfig(this.configFile);
+
+		ConfigManager.getInstance().setConfigFile(this.configFile);
+		ConfigManager.getInstance().setConfig(Config.getConfig(this.configFile));
 	}
 	
 	public void updateFunction() {
-		if (this.config.getBoolean("Enable-IP-Check")) {
-			this.kokuminIPChecker = new KokuminIPChecker(this);
+		Configuration config = ConfigManager.getInstance().getConfig();
+
+		if (config.getBoolean("Enable-IP-Check")) {
+			this.kokuminIPChecker = new KokuminIPChecker();
+			this.kokuminIPChecker.setPluginMode(true);
 			
-			if (this.config.getBoolean("Print-Debug")) {
+			if (config.getBoolean("Print-Debug")) {
 				this.kokuminIPChecker.setPrintDebug(true);
 			}
 		} else {
@@ -242,28 +243,28 @@ public class AccountInfo extends Plugin {
 
 		this.getProxy().getPluginManager().unregisterCommands(this);
 		
-		for (String command : this.config.getStringList("Custom-Command")) {
+		for (String command : config.getStringList("Custom-Command")) {
 			this.getProxy().getPluginManager().registerCommand(this, new CommandAccountInfo(this, command));
 		}
 		
-		this.timeZone = TimeZone.getTimeZone(this.config.getString("TimeZone"));
-		this.sdfFormat = this.config.getString("SdfFormat");
+		this.timeZone = TimeZone.getTimeZone(config.getString("TimeZone"));
+		this.sdfFormat = config.getString("SdfFormat");
 	}
 	
 	public void saveConfig() {
-		Config.saveConfig(this.config, this.configFile);
+		Config.saveConfig(ConfigManager.getInstance().getConfig(), this.configFile);
 	}
 	
 	public void saveAltsConfig() {
-		Config.saveConfig(this.altsConfig, this.altsYmlFile);
+		Config.saveConfig(ConfigManager.getInstance().getAltsConfig(), this.altsYmlFile);
 	}
 	
 	public void savePlayerConfig() {
-		Config.saveConfig(this.playerConfig, this.playerYmlFile);
+		Config.saveConfig(ConfigManager.getInstance().getPlayerConfig(), this.playerYmlFile);
 	}
 	
 	public void saveAddressConfig() {
-		Config.saveConfig(this.addressConfig, this.addressYmlFile);
+		Config.saveConfig(ConfigManager.getInstance().getAddressConfig(), this.addressYmlFile);
 	}
 
 	@SuppressWarnings("deprecation")

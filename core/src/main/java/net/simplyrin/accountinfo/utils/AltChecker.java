@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.var;
-import net.simplyrin.accountinfo.AccountInfo;
 import net.simplyrin.accountinfo.kokuminipchecker.PlayerData;
 
 /**
@@ -30,10 +28,7 @@ import net.simplyrin.accountinfo.kokuminipchecker.PlayerData;
  * limitations under the License.
  */
 @Getter
-@RequiredArgsConstructor
 public class AltChecker {
-
-	private final AccountInfo instance;
 
 	public void put(PlayerData p) {
 		this.put(p.getName(), p.getUniqueId().toString(),  p.getHostAddress());
@@ -62,16 +57,6 @@ public class AltChecker {
 		} else {
 			hostaddresses.add(hostaddress);
 			altsConfig.set(uuid + ".ip.hostaddresses", hostaddresses);
-		}
-
-		if (this.instance != null) {
-			if (ConfigManager.getInstance().getConfig().getBoolean("FastSave")) {
-				this.instance.saveConfig();
-			}
-			
-			if (this.instance.getKokuminIPChecker() != null) {
-				this.instance.getKokuminIPChecker().get(hostaddress, playerName);
-			}
 		}
 	}
 
@@ -152,12 +137,12 @@ public class AltChecker {
 	}
 
 	public UUID getUUIDByMCID(String mcid) {
-		CachedPlayer cp = this.instance.getOfflinePlayer().getOfflinePlayer(mcid);
+		CachedPlayer cp = OfflinePlayer.getOfflinePlayer(mcid);
 		return cp.getUniqueId();
 	}
 
 	public String getMCIDbyUUID(UUID uuid) {
-		CachedPlayer cp = this.instance.getOfflinePlayer().getOfflinePlayer(uuid);
+		CachedPlayer cp = OfflinePlayer.getOfflinePlayer(uuid);
 		return cp.getName();
 	}
 

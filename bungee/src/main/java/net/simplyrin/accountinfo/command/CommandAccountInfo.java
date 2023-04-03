@@ -21,11 +21,13 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import net.simplyrin.accountinfo.AccountInfo;
-import net.simplyrin.accountinfo.listeners.OfflinePlayer;
+import net.simplyrin.accountinfo.api.event.RequestBanReasonEvent;
 import net.simplyrin.accountinfo.utils.AccountFinder;
 import net.simplyrin.accountinfo.utils.CachedPlayer;
 import net.simplyrin.accountinfo.utils.CachedResult;
 import net.simplyrin.accountinfo.utils.ConfigManager;
+import net.simplyrin.accountinfo.utils.MessageType;
+import net.simplyrin.accountinfo.utils.OfflinePlayer;
 
 /**
  * Created by natyu192.
@@ -157,8 +159,8 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 					
 					Set<String> alts_ = new HashSet<>();
 
-					List<TextComponent> alts = null;
-					List<TextComponent> addresses = null;
+					List<MessageType> alts = null;
+					List<MessageType> addresses = null;
 					
 					var c = this.cache.get(op.getUniqueId().toString());
 					if (c != null && c.getAvailable() >= Calendar.getInstance().getTimeInMillis()) {
@@ -167,7 +169,6 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 					} else {
 						this.cache.remove(op.getUniqueId().toString());
 
-						
 						alts = AccountFinder.getInstance().getSubAccounts(op);
 						addresses = AccountFinder.getInstance().getAddresses(op);
 
@@ -262,16 +263,32 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 
 						var list = split.get(altPage);
 						
-						for (TextComponent address : list) {
-							this.instance.info(sender, address);
+						for (MessageType type : list) {
+							var messageType = type.getText();
+							
+							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.PLAYER, type.getValue());
+							
+							this.instance.getProxy().getPluginManager().callEvent(event);
+							
+							var text = type.getText();
+							text.addExtra(event.getValue());
+
+							this.instance.info(sender, text);
 						}
 						
 						this.instance.info(sender, base);
 					} else {
 						this.instance.info(sender, "§e§lサブアカウント一覧");
 						
-						for (TextComponent address : alts) {
-							this.instance.info(sender, address);
+						for (MessageType type : alts) {
+							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.PLAYER, type.getValue());
+							
+							this.instance.getProxy().getPluginManager().callEvent(event);
+							
+							var text = type.getText();
+							text.addExtra(event.getValue());
+
+							this.instance.info(sender, text);
 						}
 					}
 					
@@ -328,16 +345,30 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 
 						var list = split.get(ipPage);
 						
-						for (TextComponent address : list) {
-							this.instance.info(sender, address);
+						for (MessageType type : list) {
+							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.ADDRESS, type.getValue());
+							
+							this.instance.getProxy().getPluginManager().callEvent(event);
+							
+							var text = type.getText();
+							text.addExtra(event.getValue());
+
+							this.instance.info(sender, text);
 						}
 						
 						this.instance.info(sender, base);
 					} else {
 						this.instance.info(sender, "§e§lIP §8§l- §e§lAddress & Hostname 一覧");
 						
-						for (TextComponent address : addresses) {
-							this.instance.info(sender, address);
+						for (MessageType type : addresses) {
+							var event = new RequestBanReasonEvent(RequestBanReasonEvent.Type.ADDRESS, type.getValue());
+							
+							this.instance.getProxy().getPluginManager().callEvent(event);
+							
+							var text = type.getText();
+							text.addExtra(event.getValue());
+
+							this.instance.info(sender, text);
 						}
 					}
 				} else {
