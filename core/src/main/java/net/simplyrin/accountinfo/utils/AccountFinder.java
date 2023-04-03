@@ -106,6 +106,8 @@ public class AccountFinder {
 			message.setType(MessageType.Type.PLAYER);
 			message.setUniqueId(cachedPlayer.getUniqueId());
 			message.setValue(alt);
+			
+			base.addExtra("§a" + alt);
 			message.setText(base);
 			
 			alts.add(message);
@@ -149,7 +151,15 @@ public class AccountFinder {
 
 			message.setType(MessageType.Type.ADDRESS);
 			message.setValue(address);
-			message.setText(textComponent);
+			
+			if (textComponent != null) {
+				textComponent.addExtra((tag.length() > 2 ? tag.substring(0, 2) : "") + address);
+				textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + address));
+				
+				message.setText(textComponent);
+			} else {
+				message.setText(new TextComponent("§8- §a" + address));
+			}
 			
 			addresses.add(message);
 		}
