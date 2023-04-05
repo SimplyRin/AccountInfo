@@ -96,11 +96,13 @@ public class AccountFinder {
 				date = sdf.format(new Date(lastLogin));
 			}
 
-			base.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§e最終ログイン日:\n"
+			base.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§eUUID:\n"
+					+ "§8- §a" + cachedPlayer.getUniqueId().toString() + "\n"
+					+ "§e最終ログイン日:\n"
 					+ "§8- §a" + date + "\n"
-					+ "§e最終ログイン IP:\n"
-					+ "§8- §a" + tag + (lastIp != null ? lastIp : "")
-					+ (ipHover != null ? "\n§eIP 情報:\n" + ipHover : ""))));
+					+ "§e最終ログインアドレス:\n"
+					+ "§8- §eIP: §a" + tag + (lastIp != null ? lastIp : "")
+					+ (ipHover != null ? "\n" + ipHover : ""))));
 
 			message.setTagColor("§a");
 			message.setType(MessageType.Type.PLAYER);
@@ -231,8 +233,7 @@ public class AccountFinder {
 	}
 	
 	public String getAddressHoverJson(IpData ipData) {
-		return "§8- §e検索 IP§f: §a" + ipData.getQuery() + "\n"
-				+ "§8- §e地域§f: §a" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\n"
+		return "§8- §e地域§f: §a" + ipData.getContinentCode() + " (" + ipData.getContinent() + ")\n"
 				+ "§8- §e国§f: §a" + ipData.getCountryCode() + " (" + ipData.getCountry() + ")\n"
 				+ "§8- §eプロバイダ§f: §a" + ipData.getIsp() + "";
 	}
