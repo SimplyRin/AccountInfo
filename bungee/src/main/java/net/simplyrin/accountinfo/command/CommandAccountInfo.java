@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -150,6 +151,11 @@ public class CommandAccountInfo extends Command implements TabExecutor {
 					this.instance.info(sender, "§b----- " + args[0] + " からログインしたことのあるアカウント一覧 -----");
 					names.forEach(name -> this.instance.info(sender, "§8- §a" + name));
 					return;
+				} else if (args[0].length() == 32) {
+					args[0] = args[0].replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(.*)", "$1-$2-$3-$4-$5");
+					op = OfflinePlayer.getOfflinePlayer(UUID.fromString(args[0]));
+				} else if (args[0].length() == 36) {
+					op = OfflinePlayer.getOfflinePlayer(UUID.fromString(args[0]));
 				} else {
 					op = OfflinePlayer.getOfflinePlayer(args[0]);
 				}
