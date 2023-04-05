@@ -77,8 +77,8 @@ public class AccountFinder {
 			String ipHover = null;
 			
 			if (ConfigManager.getInstance().getConfig().getBoolean("Enable-IP-Check") && lastIp != null) {
-				base.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://ip-api.com/#" + lastIp));
-				
+				base.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ " + cachedPlayer.getUniqueId().toString()));
+
 				tag = "§7[?] ";
 				
 				var data = KokuminIPChecker.getInstance().get(lastIp);
