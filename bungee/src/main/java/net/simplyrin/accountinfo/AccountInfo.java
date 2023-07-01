@@ -189,7 +189,7 @@ public class AccountInfo extends Plugin {
 		this.getProxy().getPluginManager().registerListener(this, new EventListener(this));
 		
 		this.pluginUpdater = new PluginUpdater().initBungee(this, new ConfigData(true, true, "https://ci.simplyrin.net/job/" 
-				+ this.getDescription().getName() +"/", "AccountInfo-\\d+(\\.\\d+)*-jar-with-dependencies\\.jar",
+				+ this.getDescription().getName() +"/", this.getDescription().getName() + "-\\d+(\\.\\d+)*-jar-with-dependencies\\.jar",
 				"./plugins/" + this.getDescription().getName() + "/.old-files", false, null, null));
 		this.pluginUpdater.addShutdownHook();
 	}
